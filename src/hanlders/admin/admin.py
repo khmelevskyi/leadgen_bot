@@ -11,6 +11,11 @@ def admin(update: Update, context: CallbackContext):
     """ welcomes admin """
     chat_id = update.message.chat.id
 
+    #Check
+    if chat_id not in [chat_id]: #***list of admin users' chat_ids from DB***
+        context.bot.send_message(chat_id=chat_id, text=text["not_an_admin"])
+        return States.PASSWORD_CHECK
+
     reply_markup = [
         [text["mssg_call"]],
         [text["get_stats"]]]

@@ -2,7 +2,20 @@
     "start": "Привет, я бот-помощник для лидогенераторов!\nВведите код доступа, чтобы начать пользоваться мною.\nПодробнее /info",
     "info": "Информация:",
 
+    "yes": "Да",
+    "no": "Нет", 
+
     "hi_admin": "hi admin",
+    "not_an_admin": "you are not an admin",
     "mssg_call": "Сообщить о завершенном звонке 📞",
-    "get_stats": "Статистика 📊"
+    "choose_call": "Введите номер одного из недавних звонков",
+    "has_call_been": "Созвон прошел?",
+    "call_yes_admin_thanks": "Great, thx!\nLeadgen will be notified",
+    "call_yes_lead_thanks": "Your call was succesful, thx! You earned 300 bucks :)",
+    "call_no_admin": "Ok, thanks for your feedback\nPlease, describe what went wrong",
+    "call_no_admin_descr_thx": "Thx! Your description will be delivered to lead",
+    "call_no_lead": "Your call did not come true, here is admin/'s description:\n\"",
+    "get_stats": "Статистика 📊",
+
+    "err_unexpected_type": "Invalid data typed, please try again"
 }

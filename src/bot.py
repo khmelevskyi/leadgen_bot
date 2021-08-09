@@ -23,6 +23,10 @@ from .hanlders import start
 from .hanlders import password_check
 from .hanlders import admin
 from .hanlders import pick_call
+from .hanlders import call_feedback
+from .hanlders import call_yes
+from .hanlders import call_no
+from .hanlders import send_description
 from .hanlders import get_stats
 # from .handlers import timed_mailing
 # from .utils import cached_data
@@ -93,6 +97,19 @@ def main():
                 *necessary_handlers,
                 MessageHandler(Filters.text(text["mssg_call"]), pick_call),
                 MessageHandler(Filters.text(text["get_stats"]), get_stats)],
+            
+            States.ADMIN_CALL_CHOSEN: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, call_feedback)],
+            
+            States.HAS_CALL_BEEN: [
+                *necessary_handlers,
+                MessageHandler(Filters.text(text["yes"]), call_yes),
+                MessageHandler(Filters.text(text["no"]), call_no)],
+            
+            States.CALL_NO_DESCRIPTION: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, send_description)],
 
         },
 
