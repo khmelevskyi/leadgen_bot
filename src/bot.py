@@ -1,5 +1,6 @@
 """ main finction to launch bot """
 import os
+from src.hanlders.handlers import name
 import sys
 from datetime import time as datetime_time
 from datetime import timedelta
@@ -22,6 +23,7 @@ from .states import States
 from .hanlders import start
 from .hanlders import password_check
 from .hanlders import main_menu
+from .hanlders import name
 from .hanlders import admin
 from .hanlders import pick_call
 from .hanlders import call_feedback
@@ -100,6 +102,10 @@ def main():
             States.MAIN_MENU: [
                 *necessary_handlers,
                 MessageHandler(Filters.text, main_menu)],
+            
+            States.NAME_AND_SURNAME: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, name)],
 
 
             ## admin
