@@ -7,7 +7,7 @@ from ...states import States
 from ...data import text
 
 
-def pick_call(update: Update, context: CallbackContext):
+def pick_call_old(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
     
@@ -18,7 +18,7 @@ def pick_call(update: Update, context: CallbackContext):
 
     test_date = "09.08"
     test_time = "12:00"
-    test_emoji = ""
+    test_emoji = ":question:"
     
     #DB.calls = [call1, call2,] (-> obj)
     call_list = ""
@@ -46,6 +46,43 @@ def pick_call(update: Update, context: CallbackContext):
 
 
 
+def pick_call(update: Update, context: CallbackContext):
+
+    chat_id = update.message.chat.id
+
+    reply_markup = []
+    cntr = 1
+    """
+    for call in DB.calls[-9:]:
+        if call.was_succesful is None:
+            emoji = ":question:"
+        elif call.was_succesful:
+            emoji = ":check_mark:"
+        elif not call.was_succesful:
+            emoji = ":x:"
+        k_element = f"{cntr})📞 {call.date}, {call.time} {emoji}"
+        cntr += 1
+        reply_markup.append([k_element])
+    """
+    t_date = "24.05"
+    t_time = "12:00"
+    t_emoji = "**?**"
+    k_element = f"{cntr})📞 {t_date}, {t_time} {t_emoji}"
+    reply_markup.append([k_element])
+
+
+    markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
+
+    context.bot.send_message(
+        chat_id=chat_id,
+        text=text["choose_call"],
+        reply_markup=markup,
+    )
+    return States.ADMIN_CALL_CHOSEN
+
+
+
+
 def call_feedback(update: Update, context: CallbackContext):
     
     chat_id = update.message.chat.id
@@ -54,17 +91,17 @@ def call_feedback(update: Update, context: CallbackContext):
     admin_reply_markup = [ [text["mssg_call"] ], [ text["get_stats"] ] ]
     admin_markup = ReplyKeyboardMarkup(keyboard=admin_reply_markup, resize_keyboard=True)
 
+    """
     try:
-        option = int(msg)
+        option = int(msg[0])
     except ValueError:
         context.bot.send_message(chat_id=chat_id, text=text["err_unexpected_type"],reply_markup=admin_markup,)
         return States.ADMIN_MENU
-    
-    if option > len([1]):#len(DB.calls[-10:]):
-        context.bot.send_message(chat_id=chat_id, text="Index out of range (this text in calls.py)",reply_markup=admin_markup,)
-        return States.ADMIN_MENU
-    #DB.calls[-10:][option-1].
-    #context.user_data["chosen_call"] = DB.calls[-10:][option-1]
+    """
+    option = int(msg[0])
+
+    #DB.calls[-9:][option-1].
+    #context.user_data["chosen_call"] = DB.calls[-9:][option-1]
 
     reply_markup = [
         [text["yes"]],
