@@ -21,6 +21,7 @@ from .data import text
 from .states import States
 from .hanlders import start
 from .hanlders import password_check
+from .hanlders import main_menu
 from .hanlders import admin
 from .hanlders import pick_call
 from .hanlders import call_feedback
