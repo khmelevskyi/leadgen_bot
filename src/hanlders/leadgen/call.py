@@ -34,7 +34,7 @@ def plan_call_date(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     msg = update.message.text
 
-    if len(msg) != 5 or msg[2] != "." or int(msg[:2])>31 or int(msg[3:5])>12: #check
+    if len(msg) != 8 or msg[2] != "." or msg[5] != "." or int(msg[:2])>31 or int(msg[3:5])>12: #check
         context.bot.send_message(
             chat_id=chat_id,
             text="Invalid date, insert again (call.py)",
@@ -106,13 +106,31 @@ def plan_call_link(update: Update, context: CallbackContext):
     call_link = context.user_data["new_call_link"]
     call_creator_chat_id = chat_id
 
-    ###
-    ###
-    ###
-
     for admin_id in [chat_id]: #DB.admin_ids:
         context.bot.send_message(
             chat_id = admin_id,
             text=text["admin_new_call_notification"] + f"Date: {call_date}\nTime: {call_time}\nLink: {call_link}"
         )
+
+    # "31.08.21"+"21:59"  --->   "31-08-2021 21:59"
+    date_time_in_format = f"{call_date[:5].replace('.', '-')}-20{call_date[6:8]} {call_time}"
+    
+    #context.bot.send_message(chat_id = chat_id, text = date_time_in_format)
+
+    
+    ###
+    ###
+    ###
+
+    
     return States.PASSWORD_CHECK
+
+
+"""
+def preobraz(date, time):
+    day = int(date[0:2])
+    month = int(date[3:5])
+    h = int(date[0:2])
+    min = int(date[3:5])
+    return day, month, h, min
+"""
