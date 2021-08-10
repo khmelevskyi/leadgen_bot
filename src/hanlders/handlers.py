@@ -17,7 +17,7 @@ def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=text["start"], reply_markup=ReplyKeyboardRemove())
 
     if chat_id not in []: #DB.authorized_ids 
-        context.bot.send_message(chat_id = chat_id, text = text["non-authorixed"])#"You're non-authorized user. This is the password-check menu. Please, enter your password")
+        context.bot.send_message(chat_id = chat_id, text = text["non-authorized"])#"You're non-authorized user. This is the password-check menu. Please, enter your password")
         return States.PASSWORD_CHECK
 
     return States.MAIN_MENU
