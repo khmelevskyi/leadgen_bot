@@ -5,6 +5,7 @@ from telegram import ReplyKeyboardRemove
 
 from ...states import States
 from ...data import text
+from ...database import db_session
 
 
 def pick_call_old(update: Update, context: CallbackContext):
@@ -44,14 +45,20 @@ def pick_call_old(update: Update, context: CallbackContext):
     return States.ADMIN_CALL_CHOSEN
 
 
-
-
 def pick_call(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
+    calls = db_session.get_calls_list()
+    print(calls)
+
     reply_markup = []
-    cntr = 1
+
+    for call in calls:
+        call = f"{call[0]}) - {call[1].date()} - {call[1].time()} - {call[2]}"
+        reply_markup.append([call])
+
+    # cntr = 1
     """
     for call in DB.calls[-9:]:
         if call.was_succesful is None:
@@ -64,11 +71,11 @@ def pick_call(update: Update, context: CallbackContext):
         cntr += 1
         reply_markup.append([k_element])
     """
-    t_date = "24.05"
-    t_time = "12:00"
-    t_emoji = "**?**"
-    k_element = f"{cntr})📞 {t_date}, {t_time} {t_emoji}"
-    reply_markup.append([k_element])
+    # t_date = "24.05"
+    # t_time = "12:00"
+    # t_emoji = "**?**"
+    # k_element = f"{cntr})📞 {t_date}, {t_time} {t_emoji}"
+    # reply_markup.append([k_element])
 
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
@@ -79,8 +86,6 @@ def pick_call(update: Update, context: CallbackContext):
         reply_markup=markup,
     )
     return States.ADMIN_CALL_CHOSEN
-
-
 
 
 def call_feedback(update: Update, context: CallbackContext):
@@ -118,8 +123,6 @@ def call_feedback(update: Update, context: CallbackContext):
     return States.HAS_CALL_BEEN
 
 
-
-
 def call_yes(update: Update, context: CallbackContext):
     
     chat_id = update.message.chat.id
@@ -144,8 +147,6 @@ def call_yes(update: Update, context: CallbackContext):
     return States.ADMIN_MENU
 
 
-
-
 def call_no(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
@@ -157,8 +158,6 @@ def call_no(update: Update, context: CallbackContext):
     )
 
     return States.CALL_NO_DESCRIPTION
-
-
 
 
 def send_description(update: Update, context: CallbackContext):

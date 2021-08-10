@@ -1,9 +1,13 @@
+import os
+import pytz
+import datetime
 from telegram import Update, chat
 from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardRemove
 
 from ..data import text
 from ..states import States
+from ..database import db_session
 
 
 def end_func(chat_id):
@@ -19,7 +23,10 @@ def start(update: Update, context: CallbackContext):
 
     context.bot.send_message(chat_id=chat_id, text=text["start"], reply_markup=ReplyKeyboardRemove())
 
-    if chat_id not in []: #DB.authorized_ids 
+    authorized_users = db_session.get_users_list()
+    authorized_users = [user[0] for user in authorized_users]
+
+    if chat_id not in authorized_users: #DB.authorized_ids 
         context.bot.send_message(chat_id = chat_id, text = "You're non-authorized user. This is the password-check menu. Please, enter your password")
         return States.PASSWORD_CHECK
 
@@ -58,10 +65,19 @@ def name(update: Update, context: CallbackContext):
     
     first_name = name[0]
     last_name = name[1]
+    username = update.effective_chat.username
+    chat_id = update.effective_chat.id
+    time_registered = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev"))
 
-    ###
-    ###
-    ###
+    context.user_data["first_name"] = first_name
+    context.user_data["last_name"] = last_name
+    context.user_data["username"] = username
+    context.user_data["chat_id"] = chat_id
+    context.user_data["time_registered"] = time_registered
+
+    db_session.add_user(context.user_data)
+
+    context.user_data.clear()
 
     context.bot.send_message(chat_id = chat_id, text = "congrats, you authorized successfully")
 

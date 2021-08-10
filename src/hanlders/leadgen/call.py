@@ -1,18 +1,22 @@
+import datetime
 from telegram import Update
 from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
+from ...database import db_session
 from ...states import States
 from ...data import text
-
 
 
 def plan_call(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
-    if chat_id not in [chat_id]: #DB.leadgens_chat_ids:
+    authorized_users = db_session.get_users_list()
+    authorized_users = [user[0] for user in authorized_users]
+
+    if chat_id not in authorized_users: #DB.leadgens_chat_ids:
         context.bot.send_message(
             chat_id=chat_id,
             text="You are not a leadgen(call.py)",
@@ -25,8 +29,6 @@ def plan_call(update: Update, context: CallbackContext):
         reply_markup=ReplyKeyboardRemove(),
     )
     return States.CALL_PLAN_DATE
-
-
 
 
 def plan_call_date(update: Update, context: CallbackContext):
@@ -52,8 +54,6 @@ def plan_call_date(update: Update, context: CallbackContext):
     return States.CALL_PLAN_TIME
 
 
-
-
 def plan_call_time(update: Update, context: CallbackContext):
     
     chat_id = update.message.chat.id
@@ -75,8 +75,6 @@ def plan_call_time(update: Update, context: CallbackContext):
         reply_markup=ReplyKeyboardRemove(),
     )
     return States.CALL_PLAN_LINK
-
-
 
 
 def plan_call_link(update: Update, context: CallbackContext):
@@ -104,9 +102,12 @@ def plan_call_link(update: Update, context: CallbackContext):
     call_date = context.user_data["new_call_date"]
     call_time = context.user_data["new_call_time"]
     call_link = context.user_data["new_call_link"]
-    call_creator_chat_id = chat_id
+    context.user_data["chat_id"] = chat_id
 
-    for admin_id in [chat_id]: #DB.admin_ids:
+    admins = db_session.get_admins()
+    admins = [admin[0] for admin in admins]
+
+    for admin_id in admins: #DB.admin_ids:
         context.bot.send_message(
             chat_id = admin_id,
             text=text["admin_new_call_notification"] + f"Date: {call_date}\nTime: {call_time}\nLink: {call_link}"
@@ -114,14 +115,14 @@ def plan_call_link(update: Update, context: CallbackContext):
 
     # "31.08.21"+"21:59"  --->   "31-08-2021 21:59"
     date_time_in_format = f"{call_date[:5].replace('.', '-')}-20{call_date[6:8]} {call_time}"
-    
-    #context.bot.send_message(chat_id = chat_id, text = date_time_in_format)
+    call_datetime = datetime.datetime.strptime(date_time_in_format, "%d-%m-%Y %H:%M")
 
-    
-    ###
-    ###
-    ###
+    context.user_data["new_call_datetime"] = call_datetime
+    print(context.user_data)
 
+    db_session.add_call(context.user_data)
+
+    context.user_data.clear()
     
     return States.MAIN_MENU
 

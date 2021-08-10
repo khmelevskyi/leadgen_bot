@@ -4,6 +4,7 @@ from telegram.ext import CallbackContext
 
 from ...states import States
 from ...data import text
+from ...database import db_session
 
 
 # @restricted(None)
@@ -11,8 +12,11 @@ def admin(update: Update, context: CallbackContext):
     """ welcomes admin """
     chat_id = update.message.chat.id
 
+    admins = db_session.get_admins()
+    admins = [admin[0] for admin in admins]
+
     #Check
-    if chat_id not in [chat_id]: #***list of admin users' chat_ids from DB***
+    if chat_id not in admins: #***list of admin users' chat_ids from DB***
         context.bot.send_message(chat_id=chat_id, text=text["not_an_admin"])
         return States.PASSWORD_CHECK
 
