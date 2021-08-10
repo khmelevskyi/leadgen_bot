@@ -5,6 +5,15 @@
     "yes": "Да",
     "no": "Нет", 
 
+    "non-authorized": "Вы не авторизованы. Пожалуйста, введите свой пароль",
+    "wrong_password": "",
+    "enter_name": "",
+    "wrong_name_format": "",
+    "authorized_successfully": "%s",
+    "main_menu_first": "",
+    "main_menu_main": "",
+    "not_a_leadgen": "",
+
     "hi_admin": "hi admin",
     "not_an_admin": "you are not an admin",
     "mssg_call": "Сообщить о завершенном звонке 📞",

@@ -143,7 +143,7 @@ def main():
                 MessageHandler(Filters.text, send_description)],
 
 
-            ## leadgen
+            ## leadgen calls
             States.CALL_PLAN_DATE: [
                 *necessary_handlers,
                 MessageHandler(Filters.text, plan_call_date)],
