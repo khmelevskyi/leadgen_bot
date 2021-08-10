@@ -34,7 +34,7 @@ def plan_call_date(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     msg = update.message.text
 
-    if len(msg) != 5 or msg[2] != ".": #check
+    if len(msg) != 5 or msg[2] != "." or int(msg[:2])>31 or int(msg[3:5])>12: #check
         context.bot.send_message(
             chat_id=chat_id,
             text="Invalid date, insert again (call.py)",
@@ -59,7 +59,7 @@ def plan_call_time(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     msg = update.message.text
 
-    if len(msg) != 5 or msg[2] != ":": #check
+    if len(msg) != 5 or msg[2] != ":" or int(msg[:2])>23 or int(msg[3:5])>59: #check
         context.bot.send_message(
             chat_id=chat_id,
             text="Invalid time, insert again (call.py)",

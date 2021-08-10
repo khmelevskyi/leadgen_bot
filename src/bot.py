@@ -29,9 +29,9 @@ from .hanlders import call_no
 from .hanlders import send_description
 from .hanlders import get_stats
 from .hanlders import plan_call
-from .hanlders import call_plan_date
-from .hanlders import call_plan_time
-from .hanlders import call_plan_link
+from .hanlders import plan_call_date
+from .hanlders import plan_call_time
+from .hanlders import plan_call_link
 # from .handlers import timed_mailing
 # from .utils import cached_data
 
@@ -84,7 +84,8 @@ def main():
 
     necessary_handlers = [CommandHandler('start', start),
                           CommandHandler('stop', done),
-                          CommandHandler('admin', admin)]
+                          CommandHandler('admin', admin),
+                          CommandHandler('call', plan_call)]
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
@@ -119,15 +120,15 @@ def main():
             ## leadgen
             States.CALL_PLAN_DATE: [
                 *necessary_handlers,
-                MessageHandler(Filters.text, call_plan_date)],
+                MessageHandler(Filters.text, plan_call_date)],
             
             States.CALL_PLAN_TIME: [
                 *necessary_handlers,
-                MessageHandler(Filters.text, call_plan_time)],
+                MessageHandler(Filters.text, plan_call_time)],
             
             States.CALL_PLAN_LINK: [
                 *necessary_handlers,
-                MessageHandler(Filters.text, call_plan_link)],
+                MessageHandler(Filters.text, plan_call_link)],
         },
 
         fallbacks=[CommandHandler('stop', done)], allow_reentry=True
@@ -136,7 +137,7 @@ def main():
     dispatcher.add_handler(conv_handler)
     # dispatcher.add_handler(CommandHandler("info", info))
 
-    dispatcher.add_handler(CommandHandler("call", plan_call))
+    #dispatcher.add_handler(CommandHandler("call", plan_call))
 
     dispatcher.add_error_handler(error_handler)
 
