@@ -29,6 +29,9 @@ from .hanlders import call_no
 from .hanlders import send_description
 from .hanlders import get_stats
 from .hanlders import plan_call
+from .hanlders import call_plan_date
+from .hanlders import call_plan_time
+from .hanlders import call_plan_link
 # from .handlers import timed_mailing
 # from .utils import cached_data
 
