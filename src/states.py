@@ -20,3 +20,5 @@ class States(Enum):
     CALL_PLAN_TIME = 6
 
     CALL_PLAN_LINK = 7
+
+    MAIN_MENU = 8

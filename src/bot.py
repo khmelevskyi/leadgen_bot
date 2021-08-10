@@ -96,6 +96,10 @@ def main():
                 *necessary_handlers,
                 MessageHandler(Filters.text, password_check)],
 
+            States.MAIN_MENU: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, main_menu)],
+
 
             ## admin
             States.ADMIN_MENU: [
