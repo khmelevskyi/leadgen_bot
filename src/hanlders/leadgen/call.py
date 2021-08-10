@@ -15,7 +15,7 @@ def plan_call(update: Update, context: CallbackContext):
     if chat_id not in [chat_id]: #DB.leadgens_chat_ids:
         context.bot.send_message(
             chat_id=chat_id,
-            text="You are not a leadgen(call.py)",
+            text=text["not_a_leadgen"], #"You are not a leadgen(call.py)",
         )
         return States.PASSWORD_CHECK
     
@@ -37,7 +37,7 @@ def plan_call_date(update: Update, context: CallbackContext):
     if len(msg) != 8 or msg[2] != "." or msg[5] != "." or int(msg[:2])>31 or int(msg[3:5])>12: #check
         context.bot.send_message(
             chat_id=chat_id,
-            text="Invalid date, insert again (call.py)",
+            text=text["invalid_date"], #"Invalid date, insert again (call.py)",
             reply_markup=ReplyKeyboardRemove(),
         )
         return States.CALL_PLAN_DATE
@@ -62,7 +62,7 @@ def plan_call_time(update: Update, context: CallbackContext):
     if len(msg) != 5 or msg[2] != ":" or int(msg[:2])>23 or int(msg[3:5])>59: #check
         context.bot.send_message(
             chat_id=chat_id,
-            text="Invalid time, insert again (call.py)",
+            text=text["invalid_time"], #"Invalid time, insert again (call.py)",
             reply_markup=ReplyKeyboardRemove(),
         )
         return States.CALL_PLAN_TIME
