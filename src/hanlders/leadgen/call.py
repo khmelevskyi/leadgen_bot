@@ -123,7 +123,7 @@ def plan_call_link(update: Update, context: CallbackContext):
     ###
 
     
-    return States.PASSWORD_CHECK
+    return States.MAIN_MENU
 
 
 """

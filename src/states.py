@@ -22,3 +22,5 @@ class States(Enum):
     CALL_PLAN_LINK = 7
 
     MAIN_MENU = 8
+
+    NAME_AND_SURNAME = 9

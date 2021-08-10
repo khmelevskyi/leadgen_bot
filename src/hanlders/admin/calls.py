@@ -169,16 +169,18 @@ def send_description(update: Update, context: CallbackContext):
     #chosen_call = context.user_data["chosen_call"]
     #chosen_call.was_succesful = False
 
+    admin_reply_markup = [ [text["mssg_call"] ], [ text["get_stats"] ] ]
+    admin_markup = ReplyKeyboardMarkup(keyboard=admin_reply_markup, resize_keyboard=True)
     context.bot.send_message(
         chat_id=chat_id,
         text=text["call_no_admin_descr_thx"],
-        reply_markup=ReplyKeyboardRemove()
+        reply_markup=admin_markup,
     )
 
     context.bot.send_message(
         chat_id=chat_id,
         #chat_id=chosen_call.creator_chat_id,
         text=text["call_no_lead"] + msg + "\"",
-        reply_markup=ReplyKeyboardRemove()
+        #reply_markup=ReplyKeyboardRemove()
     )
     return States.ADMIN_MENU
