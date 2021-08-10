@@ -28,6 +28,7 @@ from .hanlders import call_yes
 from .hanlders import call_no
 from .hanlders import send_description
 from .hanlders import get_stats
+from .hanlders import plan_call
 # from .handlers import timed_mailing
 # from .utils import cached_data
 
@@ -119,7 +120,7 @@ def main():
     dispatcher.add_handler(conv_handler)
     # dispatcher.add_handler(CommandHandler("info", info))
 
-    # dispatcher.add_handler(CommandHandler("call", plan_call))
+    dispatcher.add_handler(CommandHandler("call", plan_call))
 
     dispatcher.add_error_handler(error_handler)
 

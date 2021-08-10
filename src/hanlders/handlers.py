@@ -5,6 +5,11 @@ from telegram import ReplyKeyboardRemove
 from ..data import text
 from ..states import States
 
+
+def end_func(chat_id):
+    pass
+
+
 def start(update: Update, context: CallbackContext):
     """ start command an msg """
 
