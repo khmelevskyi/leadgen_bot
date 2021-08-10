@@ -17,5 +17,8 @@
     "call_no_lead": "Your call did not come true, here is admin/'s description:\n\"",
     "get_stats": "Статистика 📊",
 
+    "leadgen_call_date": "Hi, leadgen! If you are planning a call, ... date, if not, print '/stop'",
+
+
     "err_unexpected_type": "Invalid data typed, please try again"
 }
