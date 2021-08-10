@@ -22,6 +22,14 @@
     "leadgen_call_link": "Now, link",
     "leadgen_call_ok": "Your call is now planned, thx. Admins will be notified",
     "admin_new_call_notification": "One of your leadgens have planned a call! Details:\n",
+
+    "how_worked": "Как порабтали сегодня?",
+    "no_w_no_b": "Не работал сегодня",
+    "no_w_b": "Бан, не смог работать сегодня",
+    "w_b": "Бан, но успел поработать сегодня",
+    "w_no_b": "Поработал",
+
+    "none": "haven't added this yet",
     
 
 

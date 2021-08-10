@@ -67,11 +67,13 @@ def name(update: Update, context: CallbackContext):
 
     #send video
 
+    context.bot.send_message(chat_id = chat_id, text = "Now you're in bot's main menu\nAvaliable commands:\n/job\n/call")
+
     return States.MAIN_MENU
 
 
 def main_menu(update: Update, context: CallbackContext):
     msg = update.message.text
     chat_id = update.message.chat.id
-    context.bot.send_message(chat_id=chat_id, text=f"Your message is: {msg}", reply_markup=ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=chat_id, text=f"You are in main menu\nEnter '/job' to report about your work or '/call' to plan new call\nYour message is: {msg}", reply_markup=ReplyKeyboardRemove())
     return States.MAIN_MENU

@@ -24,3 +24,7 @@ class States(Enum):
     MAIN_MENU = 8
 
     NAME_AND_SURNAME = 9
+
+    REPORT = 10
+
+    CONNECTS = 11

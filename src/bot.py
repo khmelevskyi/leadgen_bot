@@ -24,6 +24,9 @@ from .hanlders import start
 from .hanlders import password_check
 from .hanlders import main_menu
 from .hanlders import name
+from .hanlders import report
+from .hanlders import report_options
+from .hanlders import connects
 from .hanlders import admin
 from .hanlders import pick_call
 from .hanlders import call_feedback
@@ -87,8 +90,9 @@ def main():
 
     necessary_handlers = [CommandHandler('start', start),
                           CommandHandler('stop', done),
-                          CommandHandler('admin', admin),
-                          CommandHandler('call', plan_call)]
+                          #CommandHandler('admin', admin),
+                          #CommandHandler('call', plan_call),
+                          ]
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
@@ -101,11 +105,22 @@ def main():
 
             States.MAIN_MENU: [
                 *necessary_handlers,
+                CommandHandler('admin', admin),
+                CommandHandler('call', plan_call),
+                CommandHandler('report', report),
                 MessageHandler(Filters.text, main_menu)],
             
             States.NAME_AND_SURNAME: [
                 *necessary_handlers,
                 MessageHandler(Filters.text, name)],
+            
+            States.REPORT: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, report_options)],
+
+            States.CONNECTS: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, connects)],
 
 
             ## admin
