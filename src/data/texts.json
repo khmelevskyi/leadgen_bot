@@ -18,6 +18,11 @@
     "get_stats": "Статистика 📊",
 
     "leadgen_call_date": "Hi, leadgen! If you are planning a call, ... date, if not, print '/stop'",
+    "leadgen_call_time": "Now, time",
+    "leadgen_call_link": "Now, link",
+    "leadgen_call_ok": "Your call is now planned, thx. Admins will be notified",
+    "admin_new_call_notification": "One of your leadgens have planned a call! Details:\n",
+    
 
 
     "err_unexpected_type": "Invalid data typed, please try again"

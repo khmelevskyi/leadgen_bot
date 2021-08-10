@@ -14,3 +14,9 @@ class States(Enum):
     HAS_CALL_BEEN = 3
 
     CALL_NO_DESCRIPTION = 4
+
+    CALL_PLAN_DATE = 5
+
+    CALL_PLAN_TIME = 6
+
+    CALL_PLAN_LINK = 7

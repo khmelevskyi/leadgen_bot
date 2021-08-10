@@ -112,6 +112,19 @@ def main():
                 *necessary_handlers,
                 MessageHandler(Filters.text, send_description)],
 
+
+            ## leadgen
+            States.CALL_PLAN_DATE: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, call_plan_date)],
+            
+            States.CALL_PLAN_TIME: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, call_plan_time)],
+            
+            States.CALL_PLAN_LINK: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, call_plan_link)],
         },
 
         fallbacks=[CommandHandler('stop', done)], allow_reentry=True
