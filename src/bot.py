@@ -110,6 +110,8 @@ def main():
                 CommandHandler('report', report),
                 MessageHandler(Filters.text, main_menu)],
             
+
+            ## leadgen's reports
             States.NAME_AND_SURNAME: [
                 *necessary_handlers,
                 MessageHandler(Filters.text, name)],
@@ -143,7 +145,7 @@ def main():
                 MessageHandler(Filters.text, send_description)],
 
 
-            ## leadgen
+            ## leadgen calls
             States.CALL_PLAN_DATE: [
                 *necessary_handlers,
                 MessageHandler(Filters.text, plan_call_date)],

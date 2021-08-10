@@ -27,6 +27,7 @@ def report(update: Update, context: CallbackContext):
     )
     return States.REPORT
 
+
 def report_options(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
