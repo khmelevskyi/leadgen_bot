@@ -86,7 +86,7 @@ def plan_call_link(update: Update, context: CallbackContext):
     if msg.find("linkedin.com") == -1:
         context.bot.send_message(
             chat_id=chat_id,
-            text="Invalid link, insert again (call.py)",
+            text=text["invalid_link"],#, insert again (call.py)",
             reply_markup=ReplyKeyboardRemove(),
         )
         return States.CALL_PLAN_LINK

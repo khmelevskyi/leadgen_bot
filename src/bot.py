@@ -22,10 +22,13 @@ from .data import text
 from .states import States
 from .hanlders import start
 from .hanlders import password_check
+from .hanlders import everyday_ask_work
 from .hanlders import main_menu
 from .hanlders import name
 from .hanlders import report
 from .hanlders import report_options
+from .hanlders import change_connects_want
+from .hanlders import change_connects
 from .hanlders import connects
 from .hanlders import admin
 from .hanlders import pick_call
@@ -74,24 +77,19 @@ def main():
     # crone jobs
     # ==========
 
-    # j = updater.job_queue
+    j = updater.job_queue
 
-    # callback_time = datetime_time(hour=7, tzinfo=TIME_ZONE)
-    # j.run_daily(callback=everyday_ask_work, time=callback_time)
-
-    # j.run_repeating(callback=timed_mailing, interval=60, first=1)
-
-    # for hour in range(TIMER_RANGE[0], TIMER_RANGE[1] + 1):
-    #     callback_time = datetime_time(hour=hour, tzinfo=TIME_ZONE)
-    #     j.run_daily(callback=timed_mailing, time=callback_time)
+    callback_time = datetime_time(hour=20, minute=00, tzinfo=TIME_ZONE)
+    j.run_daily(callback=everyday_ask_work, time=callback_time)
 
     # massage handlers
     # ================
 
     necessary_handlers = [CommandHandler('start', start),
                           CommandHandler('stop', done),
-                          #CommandHandler('admin', admin),
-                          #CommandHandler('call', plan_call),
+                          CommandHandler('admin', admin),
+                          CommandHandler('call', plan_call),
+                          CommandHandler('report', report)
                           ]
 
     conv_handler = ConversationHandler(
@@ -105,9 +103,6 @@ def main():
 
             States.MAIN_MENU: [
                 *necessary_handlers,
-                CommandHandler('admin', admin),
-                CommandHandler('call', plan_call),
-                CommandHandler('report', report),
                 MessageHandler(Filters.text, main_menu)],
             
 
@@ -124,15 +119,27 @@ def main():
                 *necessary_handlers,
                 MessageHandler(Filters.text, connects)],
 
+            States.CHANGE_CONNECTS_WANT: [
+                *necessary_handlers,
+                MessageHandler(Filters.text(text["yes"]), change_connects_want),
+                MessageHandler(Filters.text(text["no"]), main_menu)
+            ],
+
+            States.CHANGE_CONNECTS: [
+                *necessary_handlers,
+                MessageHandler(Filters.text, change_connects)],
+
 
             ## admin
             States.ADMIN_MENU: [
                 *necessary_handlers,
+                CommandHandler('menu', main_menu),
                 MessageHandler(Filters.text(text["mssg_call"]), pick_call),
                 MessageHandler(Filters.text(text["get_stats"]), get_stats)],
             
             States.ADMIN_CALL_CHOSEN: [
                 *necessary_handlers,
+                MessageHandler(Filters.text(text["back"]), admin),
                 MessageHandler(Filters.text, call_feedback)],
             
             States.HAS_CALL_BEEN: [

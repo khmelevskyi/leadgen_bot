@@ -3,46 +3,11 @@ from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
+from .admin import admin
+
 from ...states import States
 from ...data import text
 from ...database import db_session
-
-
-def pick_call_old(update: Update, context: CallbackContext):
-
-    chat_id = update.message.chat.id
-    
-    context.bot.send_message(
-        chat_id=chat_id,
-        text=text["choose_call"],
-    )
-
-    test_date = "09.08"
-    test_time = "12:00"
-    test_emoji = ":question:"
-    
-    #DB.calls = [call1, call2,] (-> obj)
-    call_list = ""
-    cntr = 1
-    """
-    for call in DB.calls[-10:]:
-        if call.was_succesful == True:
-            emoji = ":check_mark:"
-        else if call.was_succesful == False:
-            emoji = ":x:"
-        else if call.was_succesful == None:
-            emoji = ":question:"
-        call_list += f"{cntr})📞 {call.date}, {call.time} {emoji}\n"
-        cntr += 1
-    """
-    call_list += f"{cntr})📞 {test_date}, {test_time} {test_emoji}\n"
-
-    context.bot.send_message(
-        chat_id=chat_id,
-        text=call_list,
-        reply_markup=ReplyKeyboardRemove()
-    )
-    return States.ADMIN_CALL_CHOSEN
 
 
 def pick_call(update: Update, context: CallbackContext):
@@ -50,33 +15,37 @@ def pick_call(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
 
     calls = db_session.get_calls_list()
-    print(calls)
+    #print(calls)
+    """
+    print("\n\n\n")
+    for i, call in enumerate(calls):
+        print(f"{i} ------ {call}")
+        print("\n")
+    print("-----------------------------------------------")
+    print("\n")
+    """
 
     reply_markup = []
 
+    #1
+    
     for call in calls:
         call = f"{call[0]}) - {call[1].date()} - {call[1].time()} - {call[2]}"
         reply_markup.append([call])
-
-    # cntr = 1
+    
+    #
     """
-    for call in DB.calls[-9:]:
-        if call.was_succesful is None:
-            emoji = ":question:"
-        elif call.was_succesful:
-            emoji = ":check_mark:"
-        elif not call.was_succesful:
-            emoji = ":x:"
-        k_element = f"{cntr})📞 {call.date}, {call.time} {emoji}"
-        cntr += 1
-        reply_markup.append([k_element])
+    for i, call in enumerate(calls):
+        call = ""
     """
-    # t_date = "24.05"
-    # t_time = "12:00"
-    # t_emoji = "**?**"
-    # k_element = f"{cntr})📞 {t_date}, {t_time} {t_emoji}"
-    # reply_markup.append([k_element])
+    if reply_markup == []:
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=text["no_calls_for_now"], 
+        )
+        return States.ADMIN_MENU
 
+    reply_markup.append([text["back"]])
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
 
@@ -88,25 +57,33 @@ def pick_call(update: Update, context: CallbackContext):
     return States.ADMIN_CALL_CHOSEN
 
 
+def get_call(option, calls):
+    for call in calls:
+        if option == call[0]:
+            print(call)
+            return call
+    return None
+
+
 def call_feedback(update: Update, context: CallbackContext):
     
     chat_id = update.message.chat.id
     msg = update.message.text
 
-    admin_reply_markup = [ [text["mssg_call"] ], [ text["get_stats"] ] ]
-    admin_markup = ReplyKeyboardMarkup(keyboard=admin_reply_markup, resize_keyboard=True)
-
-    """
+    
     try:
+        msg = msg.split(")")
         option = int(msg[0])
     except ValueError:
-        context.bot.send_message(chat_id=chat_id, text=text["err_unexpected_type"],reply_markup=admin_markup,)
-        return States.ADMIN_MENU
-    """
-    option = int(msg[0])
+        context.bot.send_message(chat_id=chat_id, text=text["err_unexpected_type"])
+        return pick_call(update, context)
 
-    #DB.calls[-9:][option-1].
-    #context.user_data["chosen_call"] = DB.calls[-9:][option-1]
+    calls = db_session.get_calls_list()
+    call = get_call(option, calls)
+    if call != None:
+        context.user_data["chosen_call"] = call
+    else:
+        return pick_call(update, context)
 
     reply_markup = [
         [text["yes"]],
@@ -136,14 +113,15 @@ def call_yes(update: Update, context: CallbackContext):
         reply_markup=admin_markup,
     )
 
-    #chosen_call = context.user_data["chosen_call"]
-    #chosen_call.was_succesful = True
+    chosen_call = context.user_data["chosen_call"]
+    # print(chosen_call)
+    db_session.call_done(chosen_call)
 
     context.bot.send_message(
-        chat_id=chat_id,
-        #chat_id=chosen_call.creator_chat_id,
+        chat_id=chosen_call[3],
         text=text["call_yes_lead_thanks"],
     )
+    context.user_data.clear()
     return States.ADMIN_MENU
 
 
@@ -165,8 +143,8 @@ def send_description(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     msg = update.message.text
 
-    #chosen_call = context.user_data["chosen_call"]
-    #chosen_call.was_succesful = False
+    chosen_call = context.user_data["chosen_call"]
+    db_session.delete_call(chosen_call)
 
     admin_reply_markup = [ [text["mssg_call"] ], [ text["get_stats"] ] ]
     admin_markup = ReplyKeyboardMarkup(keyboard=admin_reply_markup, resize_keyboard=True)
@@ -177,9 +155,9 @@ def send_description(update: Update, context: CallbackContext):
     )
 
     context.bot.send_message(
-        chat_id=chat_id,
-        #chat_id=chosen_call.creator_chat_id,
+        chat_id=chosen_call[3],
         text=text["call_no_lead"] + msg + "\"",
         #reply_markup=ReplyKeyboardRemove()
     )
+    context.user_data.call()
     return States.ADMIN_MENU

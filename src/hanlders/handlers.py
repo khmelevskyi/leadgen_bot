@@ -19,12 +19,13 @@ def start(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
 
     context.bot.send_message(chat_id=chat_id, text=text["start"], reply_markup=ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=chat_id, text=text["main_menu"], reply_markup=ReplyKeyboardRemove())
 
     authorized_users = db_session.get_users_list()
     authorized_users = [user[0] for user in authorized_users]
 
     if chat_id not in authorized_users: #DB.authorized_ids 
-        context.bot.send_message(chat_id = chat_id, text = text["non-authorized"])#"You're non-authorized user. This is the password-check menu. Please, enter your password")
+        context.bot.send_message(chat_id = chat_id, text = text["non-authorized"])
         return States.PASSWORD_CHECK
 
     return States.MAIN_MENU
@@ -35,16 +36,17 @@ def password_check(update: Update, context: CallbackContext):
     msg = update.message.text
     chat_id = update.message.chat.id
     
+    
     #admin_passwords = ["1212", "5070"]
     leadgen_password = "4224" #["4224", "1218"]  #from DB
 
     if msg in []:#admin_passwords:
         pass
     elif msg == leadgen_password:
-        context.bot.send_message(chat_id = chat_id, text = text["enter_name"])# "Valid password. Please, enter your name and surname (Ivan Petrovich)", reply_markup=ReplyKeyboardRemove())
+        context.bot.send_message(chat_id = chat_id, text = text["enter_name"])
         return States.NAME_AND_SURNAME
     else:
-        context.bot.send_message(chat_id = chat_id, text = text["wrong_password"])#"Invalid password. You have no permission to use the bot. Or try again")
+        context.bot.send_message(chat_id = chat_id, text = text["wrong_password"])
         return States.PASSWORD_CHECK
     
     #context.bot.send_message(chat_id = chat_id, text = "Valid password, permissions of general user granted")
@@ -57,7 +59,7 @@ def name(update: Update, context: CallbackContext):
     
     name = msg.split(" ")
     if len(name) != 2:
-        context.bot.send_message(chat_id = chat_id, text = text["wrong_name_format"])#"wrong format, try again")
+        context.bot.send_message(chat_id = chat_id, text = text["wrong_name_format"])
         return States.NAME_AND_SURNAME
     
     first_name = name[0]
@@ -76,17 +78,27 @@ def name(update: Update, context: CallbackContext):
 
     context.user_data.clear()
 
-    context.bot.send_message(chat_id = chat_id, text = text["authorized_successfully"] % (str(first_name) + " " + str(last_name)))#"congrats, you authorized successfully")
+    context.bot.send_message(chat_id = chat_id, text = text["authorized_successfully"] % (str(first_name) + " " + str(last_name)))
 
     #send video
 
-    context.bot.send_message(chat_id = chat_id, text = text["main_menu_first"]) #"Now you're in bot's main menu\nAvaliable commands:\n/job\n/call")
+    context.bot.send_message(chat_id = chat_id, text = text["main_menu_first"])
 
     return States.MAIN_MENU
 
 
 def main_menu(update: Update, context: CallbackContext):
-    msg = update.message.text
+    #msg = update.message.text
     chat_id = update.message.chat.id
     context.bot.send_message(chat_id=chat_id, text=text["main_menu_main"], reply_markup=ReplyKeyboardRemove() )#f"You are in main menu\nEnter '/job' to report about your work or '/call' to plan new call\nYour message is: {msg}", reply_markup=ReplyKeyboardRemove())
     return States.MAIN_MENU
+
+
+def everyday_ask_work(*args):
+    context = args[0]
+
+    users = db_session.get_users_list()
+
+    for user in users:
+        chat_id = user[0]
+        context.bot.send_message(chat_id=chat_id, text='Напоминаем записать результаты своей работы!\nНажмите /report', reply_markup=ReplyKeyboardRemove() )

@@ -1,25 +1,20 @@
 """ session genation """
+import pandas as pd
 from functools import wraps
 from os import link
-
-from dotenv.main import load_dotenv
-from sqlalchemy.sql.sqltypes import String
-
 
 from .base import Session
 
 """ busines logic database access """
-from datetime import datetime, time
-from datetime import timedelta
+import datetime
 from typing import Dict
 from typing import List
 from typing import Set
 from typing import Tuple
 
-from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import false
-from telegram import Chat
 from .models import Admin, Calls, User, UserStat
+
+from .base import pg_session
 
 
 def local_session(function):
@@ -126,29 +121,42 @@ class DBSession():
             ).filter(Calls.planned_at.date()==date).all()
         return calls
 
-    # @load_dotenv
-    # def call_done(self, session, call):
-    #     old_call = session.query(Calls).get(call.id)
-    #     leadgen_stat = session.query(UserStat).filter(
-    #         UserStat.leadgen_id==call.leadgen_id,
-    #         UserStat.added_at==call.planned_at.date()
-    #     ).first()
-    #     leadgen_stat.calls += 1
-    #     session.delete(old_call)
-    #     session.commit()
+    @local_session
+    def call_done(self, session, call):
+        old_call = session.query(Calls).get(call.id)
+        leadgen_stat = session.query(UserStat).filter(
+            UserStat.leadgen_id==call.leadgen_id,
+            UserStat.added_at==datetime.date.today()
+        ).first()
+        if leadgen_stat:
+            leadgen_stat.calls += 1
+        else:
+            leadgen_stat = session.query(UserStat).filter(
+                UserStat.leadgen_id==call.leadgen_id,
+                UserStat.added_at==datetime.date.today() - datetime.timedelta(1)
+            ).first()
+            leadgen_stat.calls += 1
+        session.delete(old_call)
+        session.commit()
 
+    @local_session
+    def delete_call(self, session, call):
+        old_call = session.query(Calls).get(call.id)
+        session.delete(old_call)
+        session.commit()
 
     @local_session
     def add_user_stat(self, session, leadgen_data):
-        leadgen_id = leadgen_data.leadgen_id
-        connects = leadgen_data.connects
-        ban = leadgen_data.ban
-        work = leadgen_data.work
-        added_at = leadgen_data.added_at
+        leadgen_id = leadgen_data["leadgen_id"]
+        connects = leadgen_data["connects"]
+        ban = leadgen_data["ban"]
+        work = leadgen_data["work"]
+        added_at = leadgen_data["added_at"]
 
         new_user_stat = UserStat(
             leadgen_id=leadgen_id,
             connects=connects,
+            calls = 0,
             ban=ban,
             work=work,
             added_at=added_at
@@ -156,6 +164,30 @@ class DBSession():
         session.add(new_user_stat)
         session.commit()
         return new_user_stat
+
+    @local_session
+    def get_user_stat(self, session, chat_id, date):
+        user_stat = session.query(
+            UserStat.id,
+            UserStat.leadgen_id,
+            UserStat.connects,
+            UserStat.calls,
+            UserStat.ban,
+            UserStat.work,
+            UserStat.added_at,
+            ).filter(
+            UserStat.leadgen_id==chat_id,
+            UserStat.added_at==date).all()
+        return user_stat
+
+    @local_session
+    def change_user_stat_connects(self, session, chat_id, date, new_connects):
+        user_stat = session.query(UserStat).filter(
+            UserStat.leadgen_id==chat_id,
+            UserStat.added_at==date
+        ).first()
+        user_stat.connects = new_connects
+        session.commit()
 
     @local_session
     def ban_user(self, session, chat_id: int) -> None:
@@ -207,6 +239,12 @@ class DBSession():
         if group:
             session.delete(group)
             session.commit()
+
+
+    @local_session
+    def get_stats(self, session):
+        df = pd.read_sql(session.query(Calls).statement, session.bind)
+        print(df)
 
 
 db_session: DBSession = DBSession()

@@ -28,3 +28,7 @@ class States(Enum):
     REPORT = 10
 
     CONNECTS = 11
+
+    CHANGE_CONNECTS_WANT = 12
+
+    CHANGE_CONNECTS = 13
