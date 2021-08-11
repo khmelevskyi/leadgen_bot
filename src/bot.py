@@ -98,7 +98,8 @@ def main():
         states={
             ## user
             States.PASSWORD_CHECK: [
-                *necessary_handlers,
+                CommandHandler('start', start),
+                CommandHandler('stop', done),
                 MessageHandler(Filters.text, password_check)],
 
             States.MAIN_MENU: [

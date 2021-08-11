@@ -14,6 +14,15 @@ from ...data import text
 def report(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
 
+    authorized_users = db_session.get_users_list()
+    authorized_users = [user[0] for user in authorized_users]
+    if chat_id not in authorized_users: 
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=text["not_a_leadgen"],
+        )
+        return States.PASSWORD_CHECK
+    
     date_now = datetime.date.today()
 
     user_stats = db_session.get_user_stat(chat_id, date_now)

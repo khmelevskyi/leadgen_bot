@@ -36,6 +36,14 @@ def password_check(update: Update, context: CallbackContext):
     msg = update.message.text
     chat_id = update.message.chat.id
     
+    authorized_users = db_session.get_users_list()
+    authorized_users = [user[0] for user in authorized_users]
+    if chat_id in authorized_users: 
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=text["main_menu_main"],
+        )
+        return States.MAIN_MENU
     
     #admin_passwords = ["1212", "5070"]
     leadgen_password = "4224" #["4224", "1218"]  #from DB
@@ -101,4 +109,4 @@ def everyday_ask_work(*args):
 
     for user in users:
         chat_id = user[0]
-        context.bot.send_message(chat_id=chat_id, text='Напоминаем записать результаты своей работы!\nНажмите /report', reply_markup=ReplyKeyboardRemove() )
+        context.bot.send_message(chat_id=chat_id, text=text["everyday_notification"], reply_markup=ReplyKeyboardRemove() )

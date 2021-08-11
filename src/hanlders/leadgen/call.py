@@ -13,13 +13,12 @@ def plan_call(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
-    authorized_users = db_session.get_users_list()
+    authorized_users = db_session.get_users_list()              #user check
     authorized_users = [user[0] for user in authorized_users]
-
-    if chat_id not in authorized_users: #DB.leadgens_chat_ids:
+    if chat_id not in authorized_users:
         context.bot.send_message(
             chat_id=chat_id,
-            text=text["not_a_leadgen"], #"You are not a leadgen(call.py)",
+            text=text["not_a_leadgen"],
         )
         return States.PASSWORD_CHECK
     
