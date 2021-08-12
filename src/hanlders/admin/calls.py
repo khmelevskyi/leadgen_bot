@@ -159,5 +159,5 @@ def send_description(update: Update, context: CallbackContext):
         text=text["call_no_lead"] + msg + "\"",
         #reply_markup=ReplyKeyboardRemove()
     )
-    context.user_data.call()
+    context.user_data.clear()
     return States.ADMIN_MENU

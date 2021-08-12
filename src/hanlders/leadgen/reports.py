@@ -5,6 +5,7 @@ from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
+from ...hanlders import main_menu
 from ...database import db_session
 from ...states import States
 from ...data import text
@@ -29,7 +30,7 @@ def report(update: Update, context: CallbackContext):
     print(user_stats) 
     ## user_stat[0][5] = work | True or False
     ## user_stat[0][3] = calls | 0, 1, ..
-    if user_stats and user_stats[0][5] != False: # checks if stat for this user and this date exists
+    if user_stats and user_stats[0][5] == True: # checks if stat for this user and this date exists
         reply_markup = [                      # and checks whether he worked today or not
             [text["yes"]],
             [text["no"]]
@@ -78,7 +79,7 @@ def report_options(update: Update, context: CallbackContext):
         connects = 0 # didn't work = no connects
         ban = False
         work = False
-        added_at = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev"))
+        added_at = datetime.date.today()
 
         context.user_data["leadgen_id"] = chat_id
         context.user_data["connects"] = connects
@@ -90,13 +91,13 @@ def report_options(update: Update, context: CallbackContext):
         context.user_data.clear()
 
         context.bot.send_message(chat_id=chat_id, text= f"Ban: {ban}, connects:{connects}", reply_markup = ReplyKeyboardRemove())
-        return States.MAIN_MENU
+        return main_menu(update, context)
 
     elif msg == text["no_w_b"]:
         connects = 0 # didn't work = no connects
         ban = True
         work = False
-        added_at = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev"))
+        added_at = datetime.date.today()
 
         context.user_data["leadgen_id"] = chat_id
         context.user_data["connects"] = connects
@@ -108,12 +109,12 @@ def report_options(update: Update, context: CallbackContext):
         context.user_data.clear()
 
         context.bot.send_message(chat_id=chat_id, text= f"Ban: {ban}, connects:{connects}", reply_markup = ReplyKeyboardRemove())
-        return States.MAIN_MENU
+        return main_menu(update, context)
 
     elif msg == text["w_b"]:
         ban = True
         work = True
-        added_at = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev"))
+        added_at = datetime.date.today()
 
         context.user_data["leadgen_id"] = chat_id
         context.user_data["ban"] = ban
@@ -126,7 +127,7 @@ def report_options(update: Update, context: CallbackContext):
     elif msg == text["w_no_b"]:
         ban = False
         work = True
-        added_at = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev"))
+        added_at = datetime.date.today()
 
         context.user_data["leadgen_id"] = chat_id
         context.user_data["ban"] = ban
@@ -155,7 +156,7 @@ def connects(update: Update, context: CallbackContext):
     context.user_data.clear()
 
     context.bot.send_message(chat_id=chat_id, text= f"Ban: {ban}, connects:{connects}", reply_markup = ReplyKeyboardRemove())
-    return States.MAIN_MENU
+    return main_menu(update, context)
 
 
 def change_connects_want(update: Update, context: CallbackContext):
@@ -177,7 +178,8 @@ def change_connects(update: Update, context: CallbackContext):
         return States.CHANGE_CONNECTS
 
     db_session.change_user_stat_connects(chat_id, date_now, msg)
+    context.user_data.clear()
 
     context.bot.send_message(chat_id=chat_id, text= "Количество коннектов изменено!", reply_markup = ReplyKeyboardRemove())
 
-    return States.ADMIN_MENU
+    return main_menu(update, context)

@@ -131,11 +131,7 @@ class DBSession():
         if leadgen_stat:
             leadgen_stat.calls += 1
         else:
-            leadgen_stat = session.query(UserStat).filter(
-                UserStat.leadgen_id==call.leadgen_id,
-                UserStat.added_at==datetime.date.today() - datetime.timedelta(1)
-            ).first()
-            leadgen_stat.calls += 1
+            print("blyat opyat call nayebnulsya")
         session.delete(old_call)
         session.commit()
 
@@ -146,6 +142,19 @@ class DBSession():
         session.commit()
 
     @local_session
+    def create_user_stat(self, session, user_id, date):
+        new_stat = UserStat(
+            leadgen_id = user_id,
+            connects = None,
+            calls = 0,
+            ban = None,
+            work = None,
+            added_at = date
+        )
+        session.add(new_stat)
+        session.commit()
+
+    @local_session
     def add_user_stat(self, session, leadgen_data):
         leadgen_id = leadgen_data["leadgen_id"]
         connects = leadgen_data["connects"]
@@ -153,17 +162,15 @@ class DBSession():
         work = leadgen_data["work"]
         added_at = leadgen_data["added_at"]
 
-        new_user_stat = UserStat(
-            leadgen_id=leadgen_id,
-            connects=connects,
-            calls = 0,
-            ban=ban,
-            work=work,
-            added_at=added_at
-        )
-        session.add(new_user_stat)
+        leadgen_stat = session.query(UserStat).filter(
+            UserStat.leadgen_id==leadgen_id,
+            UserStat.added_at==added_at
+        ).first()
+
+        leadgen_stat.connects = connects
+        leadgen_stat.ban = ban
+        leadgen_stat.work = work
         session.commit()
-        return new_user_stat
 
     @local_session
     def get_user_stat(self, session, chat_id, date):
@@ -209,14 +216,13 @@ class DBSession():
 
 
     @local_session
-    def get_user_data(self, session, chat_id: int) -> Tuple[int, dict]:
+    def get_users_name(self, session) -> Tuple[int, str, str]:
         """ return universi_id and user date for engine.API call """
-        university_id, user_data = (
-            session.query(User.university_id, User.user_data)
-            .filter(User.chat_id == chat_id)
-            .first()
+        users = (
+            session.query(User.chat_id, User.first_name, User.last_name)
+            .all()
         )
-        return (university_id, user_data)
+        return users
 
     @local_session
     def count_users(self, session) -> int:
@@ -243,7 +249,7 @@ class DBSession():
 
     @local_session
     def get_stats(self, session):
-        df = pd.read_sql(session.query(Calls).statement, session.bind)
+        df = pd.read_sql(session.query(UserStat).statement, session.bind)
         print(df)
 
 

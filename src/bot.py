@@ -23,6 +23,7 @@ from .states import States
 from .hanlders import start
 from .hanlders import password_check
 from .hanlders import everyday_ask_work
+from .hanlders import everyday_create_stat
 from .hanlders import main_menu
 from .hanlders import name
 from .hanlders import report
@@ -82,6 +83,9 @@ def main():
     callback_time = datetime_time(hour=20, minute=00, tzinfo=TIME_ZONE)
     j.run_daily(callback=everyday_ask_work, time=callback_time)
 
+    callback_time = datetime_time(hour=1, minute=24, tzinfo=TIME_ZONE)
+    j.run_daily(callback=everyday_create_stat, time=callback_time)
+
     # massage handlers
     # ================
 
@@ -134,7 +138,7 @@ def main():
             ## admin
             States.ADMIN_MENU: [
                 *necessary_handlers,
-                CommandHandler('menu', main_menu),
+                MessageHandler(Filters.text(text["back"]), main_menu),
                 MessageHandler(Filters.text(text["mssg_call"]), pick_call),
                 MessageHandler(Filters.text(text["get_stats"]), get_stats)],
             

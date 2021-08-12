@@ -4,6 +4,7 @@ from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
+from ...hanlders import main_menu
 from ...database import db_session
 from ...states import States
 from ...data import text
@@ -123,7 +124,7 @@ def plan_call_link(update: Update, context: CallbackContext):
 
     context.user_data.clear()
     
-    return States.MAIN_MENU
+    return main_menu(update, context)
 
 
 """

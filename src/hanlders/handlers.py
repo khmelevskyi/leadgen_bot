@@ -41,7 +41,7 @@ def password_check(update: Update, context: CallbackContext):
     if chat_id in authorized_users: 
         context.bot.send_message(
             chat_id=chat_id,
-            text=text["main_menu_main"],
+            text=text["main_menu"],
         )
         return States.MAIN_MENU
     
@@ -90,7 +90,7 @@ def name(update: Update, context: CallbackContext):
 
     #send video
 
-    context.bot.send_message(chat_id = chat_id, text = text["main_menu_first"])
+    context.bot.send_message(chat_id = chat_id, text = text["main_menu"])
 
     return States.MAIN_MENU
 
@@ -98,7 +98,7 @@ def name(update: Update, context: CallbackContext):
 def main_menu(update: Update, context: CallbackContext):
     #msg = update.message.text
     chat_id = update.message.chat.id
-    context.bot.send_message(chat_id=chat_id, text=text["main_menu_main"], reply_markup=ReplyKeyboardRemove() )#f"You are in main menu\nEnter '/job' to report about your work or '/call' to plan new call\nYour message is: {msg}", reply_markup=ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=chat_id, text=text["main_menu"], reply_markup=ReplyKeyboardRemove() )#f"You are in main menu\nEnter '/job' to report about your work or '/call' to plan new call\nYour message is: {msg}", reply_markup=ReplyKeyboardRemove())
     return States.MAIN_MENU
 
 
@@ -110,3 +110,13 @@ def everyday_ask_work(*args):
     for user in users:
         chat_id = user[0]
         context.bot.send_message(chat_id=chat_id, text=text["everyday_notification"], reply_markup=ReplyKeyboardRemove() )
+
+
+def everyday_create_stat(*args):
+    users_list = db_session.get_users_list()
+    users_list = [user[0] for user in users_list]
+
+    date = datetime.date.today()
+
+    for user in users_list:
+        db_session.create_user_stat(user, date)
