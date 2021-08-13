@@ -21,7 +21,7 @@ def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=text["start"], reply_markup=ReplyKeyboardRemove())
     context.bot.send_message(chat_id=chat_id, text=text["main_menu"], reply_markup=ReplyKeyboardRemove())
 
-    authorized_users = db_session.get_users_list()
+    authorized_users = db_session.get_users_admins_list()
     authorized_users = [user[0] for user in authorized_users]
 
     if chat_id not in authorized_users: #DB.authorized_ids 
@@ -36,7 +36,7 @@ def password_check(update: Update, context: CallbackContext):
     msg = update.message.text
     chat_id = update.message.chat.id
     
-    authorized_users = db_session.get_users_list()
+    authorized_users = db_session.get_users_admins_list()
     authorized_users = [user[0] for user in authorized_users]
     if chat_id in authorized_users: 
         context.bot.send_message(

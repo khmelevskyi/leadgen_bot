@@ -15,7 +15,7 @@ from ...data import text
 def report(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
 
-    authorized_users = db_session.get_users_list()
+    authorized_users = db_session.get_users_admins_list()
     authorized_users = [user[0] for user in authorized_users]
     if chat_id not in authorized_users: 
         context.bot.send_message(
@@ -90,7 +90,7 @@ def report_options(update: Update, context: CallbackContext):
         db_session.add_user_stat(context.user_data)
         context.user_data.clear()
 
-        context.bot.send_message(chat_id=chat_id, text= f"Ban: {ban}, connects:{connects}", reply_markup = ReplyKeyboardRemove())
+        context.bot.send_message(chat_id=chat_id, text=text["report_thanks"], reply_markup = ReplyKeyboardRemove())
         return main_menu(update, context)
 
     elif msg == text["no_w_b"]:
@@ -108,7 +108,7 @@ def report_options(update: Update, context: CallbackContext):
         db_session.add_user_stat(context.user_data)
         context.user_data.clear()
 
-        context.bot.send_message(chat_id=chat_id, text= f"Ban: {ban}, connects:{connects}", reply_markup = ReplyKeyboardRemove())
+        context.bot.send_message(chat_id=chat_id, text=text["report_thanks"], reply_markup = ReplyKeyboardRemove())
         return main_menu(update, context)
 
     elif msg == text["w_b"]:
@@ -155,7 +155,7 @@ def connects(update: Update, context: CallbackContext):
     db_session.add_user_stat(context.user_data)
     context.user_data.clear()
 
-    context.bot.send_message(chat_id=chat_id, text= f"Ban: {ban}, connects:{connects}", reply_markup = ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=chat_id, text=text["report_thanks"], reply_markup = ReplyKeyboardRemove())
     return main_menu(update, context)
 
 
@@ -163,7 +163,7 @@ def change_connects_want(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat_id
 
-    context.bot.send_message(chat_id=chat_id, text=text["enter_new_connects"] , reply_markup = ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=chat_id, text=text["enter_new_connects"], reply_markup = ReplyKeyboardRemove())
 
     return States.CHANGE_CONNECTS
 

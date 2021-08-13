@@ -22,7 +22,8 @@ def admin(update: Update, context: CallbackContext):
 
     reply_markup = [
         [text["mssg_call"]],
-        [text["get_stats"]]]
+        [text["get_stats"]],
+        [text["back"]]]
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
 

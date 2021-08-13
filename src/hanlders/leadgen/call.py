@@ -14,7 +14,7 @@ def plan_call(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
-    authorized_users = db_session.get_users_list()              #user check
+    authorized_users = db_session.get_users_admins_list()              #user check
     authorized_users = [user[0] for user in authorized_users]
     if chat_id not in authorized_users:
         context.bot.send_message(
@@ -22,11 +22,15 @@ def plan_call(update: Update, context: CallbackContext):
             text=text["not_a_leadgen"],
         )
         return States.PASSWORD_CHECK
+
+    reply_markup = [[text["back"]]]
+
+    markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
     
     context.bot.send_message(
         chat_id=chat_id,
         text=text["leadgen_call_date"],
-        reply_markup=ReplyKeyboardRemove(),
+        reply_markup=markup,
     )
     return States.CALL_PLAN_DATE
 

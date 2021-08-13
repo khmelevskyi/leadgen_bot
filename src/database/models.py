@@ -39,6 +39,7 @@ class User(Base):
     first_name = Column(String)  # first name is unlimited
     last_name = Column(String)
     time_registered = Column(DateTime(timezone=True), default=local_time)
+    is_admin = Column(Boolean, default=False)
 
     def __repr__(self):
         return "<User(chat_id='{}', username='{}', is_banned='{}', university='{}')>".format(

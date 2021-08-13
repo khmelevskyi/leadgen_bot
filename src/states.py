@@ -32,3 +32,5 @@ class States(Enum):
     CHANGE_CONNECTS_WANT = 12
 
     CHANGE_CONNECTS = 13
+
+    STATS_MENU = 14

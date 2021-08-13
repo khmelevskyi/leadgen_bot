@@ -60,6 +60,7 @@ class DBSession():
         first_name = user_data["first_name"]
         last_name = user_data["last_name"]
         time_registered = user_data["time_registered"]
+        is_admin = False
 
         user = session.query(User).get(chat_id)
         if user:
@@ -77,7 +78,8 @@ class DBSession():
             username=username,
             first_name=first_name,
             last_name = last_name,
-            time_registered = time_registered
+            time_registered = time_registered,
+            is_admin = is_admin
         )
         session.add(new_user)
         session.commit()
@@ -220,6 +222,7 @@ class DBSession():
         """ return universi_id and user date for engine.API call """
         users = (
             session.query(User.chat_id, User.first_name, User.last_name)
+            .filter(User.is_admin==False)
             .all()
         )
         return users
@@ -235,6 +238,13 @@ class DBSession():
     def get_users_list(self, session):
         """ list all users in database """
 
+        users = session.query(User.chat_id).filter(User.is_admin==False).all()
+        return users
+
+    @local_session
+    def get_users_admins_list(self, session):
+        """ list all users in database """
+
         users = session.query(User.chat_id).all()
         return users
 
@@ -248,9 +258,57 @@ class DBSession():
 
 
     @local_session
-    def get_stats(self, session):
-        df = pd.read_sql(session.query(UserStat).statement, session.bind)
-        print(df)
+    def get_stats(self, session, leadgen_id=None):
+        if leadgen_id == None:
+            df = pd.read_sql(session.query(UserStat).statement, session.bind)
+        else:
+            df = pd.read_sql(session.query(UserStat).filter(UserStat.leadgen_id==leadgen_id).statement, session.bind)
+        # print(df)
+        df_res = {}
+
+        # print(df_res)
+        self.created_dict(df_res, "overall", df)
+
+        today_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day]
+        # print(today_df)
+        self.created_dict(df_res, "today", today_df)
+
+        ystrdy_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day-1]
+        self.created_dict(df_res, "ystrdy", ystrdy_df)
+
+        this_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month]
+        self.created_dict(df_res, "this_month", this_month_df)
+
+        last_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month-1]
+        self.created_dict(df_res, "last_month", last_month_df)
+
+        year_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.year == datetime.date.today().year]
+        self.created_dict(df_res, "year", year_df)
+
+        return df_res
+
+    def created_dict(self, df_res, date, df):
+        dict_date = {}
+        dict_date["connects"] = df["connects"].sum()
+        dict_date["calls"] = df["calls"].sum()
+        if date=="today" or date=="ystrdy":
+            try:
+                dict_date["is_ban"] = df["ban"].values[0]
+                dict_date["is_work"] = df["work"].values[0]
+            except:
+                dict_date["is_ban"] = None
+                dict_date["is_work"] = None
+        else:
+            dict_date["days_ban"] = df[df["ban"] == True]["ban"].count()
+            dict_date["days_not_ban"] = df[df["ban"] == False]["ban"].count()
+            dict_date["days_work"] = df[df["work"] == True]["work"].count()
+            dict_date["days_not_work"] = df[df["work"] == False]["work"].count()
+
+        df_res[date] = dict_date
+
+
+         
+
 
 
 db_session: DBSession = DBSession()

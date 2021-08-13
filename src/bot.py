@@ -42,6 +42,7 @@ from .hanlders import plan_call
 from .hanlders import plan_call_date
 from .hanlders import plan_call_time
 from .hanlders import plan_call_link
+from .hanlders import show_stats
 # from .handlers import timed_mailing
 # from .utils import cached_data
 
@@ -83,7 +84,7 @@ def main():
     callback_time = datetime_time(hour=20, minute=00, tzinfo=TIME_ZONE)
     j.run_daily(callback=everyday_ask_work, time=callback_time)
 
-    callback_time = datetime_time(hour=1, minute=24, tzinfo=TIME_ZONE)
+    callback_time = datetime_time(hour=19, minute=51, tzinfo=TIME_ZONE)
     j.run_daily(callback=everyday_create_stat, time=callback_time)
 
     # massage handlers
@@ -156,10 +157,17 @@ def main():
                 *necessary_handlers,
                 MessageHandler(Filters.text, send_description)],
 
+            States.STATS_MENU: [
+                *necessary_handlers,
+                MessageHandler(Filters.text(text["back"]), admin),
+                MessageHandler(Filters.text, show_stats)
+            ],
+
 
             ## leadgen calls
             States.CALL_PLAN_DATE: [
                 *necessary_handlers,
+                MessageHandler(Filters.text(text["back"]), main_menu),
                 MessageHandler(Filters.text, plan_call_date)],
             
             States.CALL_PLAN_TIME: [
@@ -175,9 +183,6 @@ def main():
     )
 
     dispatcher.add_handler(conv_handler)
-    # dispatcher.add_handler(CommandHandler("info", info))
-
-    #dispatcher.add_handler(CommandHandler("call", plan_call))
 
     dispatcher.add_error_handler(error_handler)
 
