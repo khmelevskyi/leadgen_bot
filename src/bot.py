@@ -1,9 +1,7 @@
 """ main finction to launch bot """
 import os
-from src.hanlders.handlers import name
 import sys
 from datetime import time as datetime_time
-from datetime import timedelta
 import logging # used for error detection
 
 from dotenv import load_dotenv
@@ -17,10 +15,10 @@ from telegram.ext import Updater
 from telegram.utils.request import Request
 
 from .data import TIME_ZONE
-from .data import TIMER_RANGE
 from .data import text
 from .states import States
 from .hanlders import start
+from .hanlders import echo_service
 from .hanlders import password_check
 from .hanlders import everyday_ask_work
 from .hanlders import everyday_create_stat
@@ -67,139 +65,145 @@ def error_handler(update, context):
 def main():
     """ inicialise handlers and start the bot """
 
-    # storage_file = "storage"
-    # my_persistence = PicklePersistence(filename=storage_file)
+    storage_file = "storage"
+    my_persistence = PicklePersistence(filename=storage_file)
     
     bot_token = os.getenv("BOT_TOKEN")  # variable, because it is neaded on webhook
-    updater = Updater(token=bot_token, use_context=True)
+    updater = Updater(token=bot_token, use_context=True, persistence=my_persistence)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # crone jobs
-    # ==========
+    if ("--service" in sys.argv) or ("-s" in sys.argv):
+        print("!!!!!!!! bot on service !!!!!!!!")
+        dispatcher.add_handler(MessageHandler((Filters.text | Filters.command), echo_service))
+    else:
+        # crone jobs
+        # ==========
 
-    j = updater.job_queue
+        j = updater.job_queue
 
-    callback_time = datetime_time(hour=20, minute=00, tzinfo=TIME_ZONE)
-    j.run_daily(callback=everyday_ask_work, time=callback_time)
+        callback_time = datetime_time(hour=21, minute=00, tzinfo=TIME_ZONE)
+        j.run_daily(callback=everyday_ask_work, time=callback_time)
 
-    callback_time = datetime_time(hour=19, minute=51, tzinfo=TIME_ZONE)
-    j.run_daily(callback=everyday_create_stat, time=callback_time)
+        callback_time = datetime_time(hour=0, minute=2, tzinfo=TIME_ZONE)
+        j.run_daily(callback=everyday_create_stat, time=callback_time)
 
-    # massage handlers
-    # ================
+        # massage handlers
+        # ================
 
-    necessary_handlers = [CommandHandler('start', start),
-                          CommandHandler('stop', done),
-                          CommandHandler('admin', admin),
-                          CommandHandler('call', plan_call),
-                          CommandHandler('report', report)
-                          ]
+        necessary_handlers = [CommandHandler('start', start),
+                            CommandHandler('stop', done),
+                            CommandHandler('admin', admin),
+                            CommandHandler('call', plan_call),
+                            CommandHandler('report', report)
+                            ]
 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+        conv_handler = ConversationHandler(
+            name="conversation",
+            persistent=True,
+            entry_points=[CommandHandler('start', start)],
 
-        states={
-            ## user
-            States.PASSWORD_CHECK: [
-                CommandHandler('start', start),
-                CommandHandler('stop', done),
-                MessageHandler(Filters.text, password_check)],
+            states={
+                ## user
+                States.PASSWORD_CHECK: [
+                    CommandHandler('start', start),
+                    CommandHandler('stop', done),
+                    MessageHandler(Filters.text, password_check)],
 
-            States.MAIN_MENU: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, main_menu)],
-            
+                States.MAIN_MENU: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, main_menu)],
+                
 
-            ## leadgen's reports
-            States.NAME_AND_SURNAME: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, name)],
-            
-            States.REPORT: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, report_options)],
+                ## leadgen's reports
+                States.NAME_AND_SURNAME: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, name)],
+                
+                States.REPORT: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, report_options)],
 
-            States.CONNECTS: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, connects)],
+                States.CONNECTS: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, connects)],
 
-            States.CHANGE_CONNECTS_WANT: [
-                *necessary_handlers,
-                MessageHandler(Filters.text(text["yes"]), change_connects_want),
-                MessageHandler(Filters.text(text["no"]), main_menu)
-            ],
+                States.CHANGE_CONNECTS_WANT: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["yes"]), change_connects_want),
+                    MessageHandler(Filters.text(text["no"]), main_menu)
+                ],
 
-            States.CHANGE_CONNECTS: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, change_connects)],
-
-
-            ## admin
-            States.ADMIN_MENU: [
-                *necessary_handlers,
-                MessageHandler(Filters.text(text["back"]), main_menu),
-                MessageHandler(Filters.text(text["mssg_call"]), pick_call),
-                MessageHandler(Filters.text(text["get_stats"]), get_stats)],
-            
-            States.ADMIN_CALL_CHOSEN: [
-                *necessary_handlers,
-                MessageHandler(Filters.text(text["back"]), admin),
-                MessageHandler(Filters.text, call_feedback)],
-            
-            States.HAS_CALL_BEEN: [
-                *necessary_handlers,
-                MessageHandler(Filters.text(text["yes"]), call_yes),
-                MessageHandler(Filters.text(text["no"]), call_no)],
-            
-            States.CALL_NO_DESCRIPTION: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, send_description)],
-
-            States.STATS_MENU: [
-                *necessary_handlers,
-                MessageHandler(Filters.text(text["back"]), admin),
-                MessageHandler(Filters.text, show_stats)
-            ],
+                States.CHANGE_CONNECTS: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, change_connects)],
 
 
-            ## leadgen calls
-            States.CALL_PLAN_DATE: [
-                *necessary_handlers,
-                MessageHandler(Filters.text(text["back"]), main_menu),
-                MessageHandler(Filters.text, plan_call_date)],
-            
-            States.CALL_PLAN_TIME: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, plan_call_time)],
-            
-            States.CALL_PLAN_LINK: [
-                *necessary_handlers,
-                MessageHandler(Filters.text, plan_call_link)],
-        },
+                ## admin
+                States.ADMIN_MENU: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), main_menu),
+                    MessageHandler(Filters.text(text["mssg_call"]), pick_call),
+                    MessageHandler(Filters.text(text["get_stats"]), get_stats)],
+                
+                States.ADMIN_CALL_CHOSEN: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, call_feedback)],
+                
+                States.HAS_CALL_BEEN: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["yes"]), call_yes),
+                    MessageHandler(Filters.text(text["no"]), call_no)],
+                
+                States.CALL_NO_DESCRIPTION: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, send_description)],
 
-        fallbacks=[CommandHandler('stop', done)], allow_reentry=True
-    )
+                States.STATS_MENU: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, show_stats)
+                ],
 
-    dispatcher.add_handler(conv_handler)
+
+                ## leadgen calls
+                States.CALL_PLAN_DATE: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), main_menu),
+                    MessageHandler(Filters.text, plan_call_date)],
+                
+                States.CALL_PLAN_TIME: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, plan_call_time)],
+                
+                States.CALL_PLAN_LINK: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, plan_call_link)],
+            },
+
+            fallbacks=[CommandHandler('stop', done)], allow_reentry=True
+        )
+
+        dispatcher.add_handler(conv_handler)
 
     dispatcher.add_error_handler(error_handler)
 
     if ("--web-hook" in sys.argv) or ("-w" in sys.argv):
         print("-------- starting webhook --------")
-    #     host_port = int(os.getenv("WEBHOOK_PORT"))
-    #     host_url = os.getenv("WEBHOOK_URL")
-    #     webhook_host_url = f"https://{host_url}:{host_port}/{bot_token}"
-    #     print("started on\n\n" + webhook_host_url)
-    #     updater.start_webhook(
-    #         listen="0.0.0.0",
-    #         port=host_port,
-    #         url_path=bot_token,
-    #         key="private.key",
-    #         cert="cert.pem",
-    #         webhook_url=webhook_host_url,
-    #     )
+        host_port = int(os.getenv("WEBHOOK_PORT"))
+        host_url = os.getenv("WEBHOOK_URL")
+        webhook_host_url = f"https://{host_url}:{host_port}/{bot_token}"
+        print("started on\n\n" + webhook_host_url)
+        updater.start_webhook(
+            listen="0.0.0.0",
+            port=host_port,
+            url_path=bot_token,
+            key="private.key",
+            cert="cert.pem",
+            webhook_url=webhook_host_url,
+        )
     else:
         print("-------- starting polling --------")
         updater.start_polling()

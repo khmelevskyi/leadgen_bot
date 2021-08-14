@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+##### CUSTOM #####
+*.sqlite
+*.sql
+
+.vscode/
+storage
+private.key
+cert.pem

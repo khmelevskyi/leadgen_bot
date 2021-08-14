@@ -120,3 +120,16 @@ def everyday_create_stat(*args):
 
     for user in users_list:
         db_session.create_user_stat(user, date)
+
+
+def echo_service(update: Update, context: CallbackContext):
+    """ echo all msgs"""
+
+    chat_id = update.message.chat.id
+    context.bot.send_message(
+        chat_id=chat_id,
+        text=(
+            "Сейчас бот на техническом обслуживании ⚠\n"
+            + "и времено не работает 🧑🏿‍💻\nСкоро вернемся 🕔"
+        ),
+    )
