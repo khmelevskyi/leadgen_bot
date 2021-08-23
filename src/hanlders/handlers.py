@@ -1,7 +1,7 @@
 import os
 import pytz
 import datetime
-from telegram import Update, chat
+from telegram import Update
 from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardRemove
 
@@ -116,11 +116,38 @@ def everyday_create_stat(*args):
     users_list = db_session.get_users_list()
     users_list = [user[0] for user in users_list]
 
-    date = datetime.date.today()
+    date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date()
 
     for user in users_list:
         db_session.create_user_stat(user, date)
 
+
+def everyday_check_who_answered(*args):
+    context = args[0]
+
+    users_list = db_session.get_users_list_full()
+    users_didnt_answer = []
+
+    date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date() - datetime.timedelta(days=1)
+    for user in users_list:
+        is_answered = db_session.check_who_answered(user[0], date)
+        if is_answered == True:
+            pass
+        else:
+            users_didnt_answer.append(f"{user[3]} - @{user[2]}")
+
+    if len(users_didnt_answer) == 0:
+        pass
+    else:
+        backslash_char = "\n"
+        sens_symbol = "'"
+        context.bot.send_message(
+            chat_id=os.getenv("ADMIN_CHAT_ID"),
+            text=f"Эти ребята не зарепортили вчера:\n{str(users_didnt_answer).replace('[', '').replace(']', '').replace(', ', backslash_char).replace(sens_symbol, '')}",
+            reply_markup=ReplyKeyboardRemove()
+        )
+
+        
 
 def echo_service(update: Update, context: CallbackContext):
     """ echo all msgs"""

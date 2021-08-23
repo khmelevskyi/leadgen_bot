@@ -145,15 +145,23 @@ class DBSession():
 
     @local_session
     def create_user_stat(self, session, user_id, date):
-        new_stat = UserStat(
-            leadgen_id = user_id,
-            connects = None,
-            calls = 0,
-            ban = None,
-            work = None,
-            added_at = date
-        )
-        session.add(new_stat)
+        leadgen_stat = session.query(UserStat).filter(
+            UserStat.leadgen_id==user_id,
+            UserStat.added_at==date
+        ).first()
+
+        if leadgen_stat:
+            pass
+        else:
+            new_stat = UserStat(
+                leadgen_id = user_id,
+                connects = None,
+                calls = 0,
+                ban = None,
+                work = None,
+                added_at = date
+            )
+            session.add(new_stat)
         session.commit()
 
     @local_session
@@ -169,9 +177,20 @@ class DBSession():
             UserStat.added_at==added_at
         ).first()
 
-        leadgen_stat.connects = connects
-        leadgen_stat.ban = ban
-        leadgen_stat.work = work
+        if leadgen_stat:
+            leadgen_stat.connects = connects
+            leadgen_stat.ban = ban
+            leadgen_stat.work = work
+        else:
+            new_stat = UserStat(
+            leadgen_id = leadgen_id,
+            connects = connects,
+            calls = 0,
+            ban = ban,
+            work = work,
+            added_at = added_at
+            )
+            session.add(new_stat)
         session.commit()
 
     @local_session
@@ -197,6 +216,18 @@ class DBSession():
         ).first()
         user_stat.connects = new_connects
         session.commit()
+
+    @local_session
+    def check_who_answered(self, session, user_id, date):
+        leadgen_stat = session.query(UserStat).filter(
+            UserStat.leadgen_id==user_id,
+            UserStat.added_at==date
+        ).first()
+
+        if leadgen_stat and leadgen_stat.connects != None:
+            return True
+        else:
+            return False
 
     @local_session
     def ban_user(self, session, chat_id: int) -> None:
@@ -239,6 +270,20 @@ class DBSession():
         """ list all users in database """
 
         users = session.query(User.chat_id).filter(User.is_admin==False).all()
+        return users
+
+    @local_session
+    def get_users_list_full(self, session):
+        """ list all users in database """
+
+        users = session.query(
+            User.chat_id,
+            User.is_banned,
+            User.username,
+            User.first_name,
+            User.last_name,
+            User.time_registered
+            ).filter(User.is_admin==False).all()
         return users
 
     @local_session

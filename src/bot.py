@@ -2,17 +2,15 @@
 import os
 import sys
 from datetime import time as datetime_time
-import logging # used for error detection
+import logging
 
 from dotenv import load_dotenv
-from telegram.ext import CallbackQueryHandler
 from telegram.ext import ConversationHandler
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
 from telegram.ext import MessageHandler
 from telegram.ext import PicklePersistence
 from telegram.ext import Updater
-from telegram.utils.request import Request
 
 from .data import TIME_ZONE
 from .data import text
@@ -22,6 +20,7 @@ from .hanlders import echo_service
 from .hanlders import password_check
 from .hanlders import everyday_ask_work
 from .hanlders import everyday_create_stat
+from .hanlders import everyday_check_who_answered
 from .hanlders import main_menu
 from .hanlders import name
 from .hanlders import report
@@ -41,8 +40,6 @@ from .hanlders import plan_call_date
 from .hanlders import plan_call_time
 from .hanlders import plan_call_link
 from .hanlders import show_stats
-# from .handlers import timed_mailing
-# from .utils import cached_data
 
 load_dotenv()
 
@@ -53,7 +50,6 @@ print("-------- succesful import --------")
 
 
 def done(update, context):
-    # context.bot.send_message('Your message was not recognized')
     return ConversationHandler.END
 
 
@@ -86,8 +82,11 @@ def main():
         callback_time = datetime_time(hour=21, minute=00, tzinfo=TIME_ZONE)
         j.run_daily(callback=everyday_ask_work, time=callback_time)
 
-        callback_time = datetime_time(hour=0, minute=2, tzinfo=TIME_ZONE)
+        callback_time = datetime_time(hour=0, minute=4, tzinfo=TIME_ZONE)
         j.run_daily(callback=everyday_create_stat, time=callback_time)
+
+        callback_time = datetime_time(hour=0, minute=2, tzinfo=TIME_ZONE)
+        j.run_daily(callback=everyday_check_who_answered, time=callback_time)
 
         # massage handlers
         # ================
