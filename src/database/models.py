@@ -51,6 +51,7 @@ class Admin(Base):
     __tablename__ = "admin"
 
     chat_id = Column(BigInteger, ForeignKey("user.chat_id"), primary_key=True)
+    role = Column(String)  # superadmin, sales
 
     user = relationship("User", backref="admin", foreign_keys=[chat_id])
 

@@ -12,13 +12,13 @@ def get_stats(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
-    admins = db_session.get_admins()
+    admins = db_session.get_admins(["superadmin", "leadgen"])
     admins = [admin[0] for admin in admins]
 
     #Check
     if chat_id not in admins: #***list of admin users' chat_ids from DB***
         context.bot.send_message(chat_id=chat_id, text=text["not_an_admin"])
-        return States.PASSWORD_CHECK
+        return States.MAIN_MENU
 
     users_list = db_session.get_users_name()
 
@@ -47,14 +47,14 @@ def show_stats(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
-    admins = db_session.get_admins()
+    admins = db_session.get_admins(["superadmin", "leadgen"])
     # n_admins = len(admins)
     admins = [admin[0] for admin in admins]
 
     #Check
     if chat_id not in admins: #***list of admin users' chat_ids from DB***
         context.bot.send_message(chat_id=chat_id, text=text["not_an_admin"])
-        return States.PASSWORD_CHECK
+        return States.MAIN_MENU
 
     users_list = db_session.get_users_name()
     n_leadgens = len(users_list)

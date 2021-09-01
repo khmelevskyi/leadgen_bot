@@ -22,6 +22,9 @@ from .hanlders import everyday_ask_work
 from .hanlders import everyday_create_stat
 from .hanlders import everyday_check_who_answered
 from .hanlders import main_menu
+from .hanlders import make_admin
+from .hanlders import make_admin_role
+from .hanlders import make_admin_save
 from .hanlders import name
 from .hanlders import report
 from .hanlders import report_options
@@ -144,7 +147,9 @@ def main():
                     *necessary_handlers,
                     MessageHandler(Filters.text(text["back"]), main_menu),
                     MessageHandler(Filters.text(text["mssg_call"]), pick_call),
-                    MessageHandler(Filters.text(text["get_stats"]), get_stats)],
+                    MessageHandler(Filters.text(text["get_stats"]), get_stats),
+                    MessageHandler(Filters.text(text["make_admin"]), make_admin)
+                ],
                 
                 States.ADMIN_CALL_CHOSEN: [
                     *necessary_handlers,
@@ -164,6 +169,16 @@ def main():
                     *necessary_handlers,
                     MessageHandler(Filters.text(text["back"]), admin),
                     MessageHandler(Filters.text, show_stats)
+                ],
+                States.MAKE_ADMIN: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, make_admin_role)
+                ],
+                States.MAKE_ADMIN_SAVE: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, make_admin_save)
                 ],
 
 

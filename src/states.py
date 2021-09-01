@@ -34,3 +34,7 @@ class States(Enum):
     CHANGE_CONNECTS = 13
 
     STATS_MENU = 14
+
+    MAKE_ADMIN = 15
+
+    MAKE_ADMIN_SAVE = 16

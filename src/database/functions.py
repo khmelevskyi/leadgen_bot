@@ -41,14 +41,46 @@ class DBSession():
     """ db function with renewadle session for each func """
 
     def __init__(self):
-        self.admins = self.get_admins()
+        self.admins = self.get_admins(["superadmin", "leadgen", "sales"])
 
     @local_session
-    def get_admins(self, session) -> None:
-        admins = session.query(Admin.chat_id).all()
+    def get_admins(self, session, role_list) -> None:
+        admins = (
+            session.query(Admin.chat_id)
+            .filter(Admin.role.in_(role_list))
+            .all()
+        )
 
         return admins
-    
+
+#### User.is_admin defines whether to count user in general leadgen list
+    @local_session
+    def make_admin(self, session, chat_id, role) -> None:
+
+        if role == "superadmin" or role == "sales":
+            user = session.query(User).get(chat_id)
+            user.is_admin = True  # not count as leadgen
+            session.commit()
+        elif role == "leadgen":
+            user = session.query(User).get(chat_id)
+            user.is_admin = False  # count as leadgen
+            session.commit()
+        
+        admin = session.query(Admin).get(chat_id)
+
+        if admin:
+            admin.role = role
+            session.commit()
+            return admin
+        
+        new_admin = Admin(
+            chat_id=chat_id,
+            role=role
+        )
+        session.add(new_admin)
+        session.commit()
+
+        return new_admin    
 
     @local_session
     def add_user(self, session, user_data: Dict) -> User:
@@ -133,7 +165,11 @@ class DBSession():
         if leadgen_stat:
             leadgen_stat.calls += 1
         else:
-            print("blyat opyat call nayebnulsya")
+            self.create_user_stat(
+                call.leadgen_id,
+                datetime.date.today()
+            )
+            return self.call_done(call)
         session.delete(old_call)
         session.commit()
 
@@ -254,6 +290,15 @@ class DBSession():
         users = (
             session.query(User.chat_id, User.first_name, User.last_name)
             .filter(User.is_admin==False)
+            .all()
+        )
+        return users
+
+    @local_session
+    def get_users_admins_name(self, session) -> Tuple[int, str, str]:
+        """ return universi_id and user date for engine.API call """
+        users = (
+            session.query(User.chat_id, User.first_name, User.last_name)
             .all()
         )
         return users

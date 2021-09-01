@@ -108,7 +108,7 @@ def plan_call_link(update: Update, context: CallbackContext):
     call_link = context.user_data["new_call_link"]
     context.user_data["chat_id"] = chat_id
 
-    admins = db_session.get_admins()
+    admins = db_session.get_admins(["superadmin", "leadgen", "sales"])
     admins = [admin[0] for admin in admins]
 
     for admin_id in admins: #DB.admin_ids:
