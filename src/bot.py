@@ -21,6 +21,8 @@ from .hanlders import password_check
 from .hanlders import everyday_ask_work
 from .hanlders import everyday_create_stat
 from .hanlders import everyday_check_who_answered
+from .hanlders import del_user
+from .hanlders import del_user_save
 from .hanlders import main_menu
 from .hanlders import make_admin
 from .hanlders import make_admin_role
@@ -148,7 +150,8 @@ def main():
                     MessageHandler(Filters.text(text["back"]), main_menu),
                     MessageHandler(Filters.text(text["mssg_call"]), pick_call),
                     MessageHandler(Filters.text(text["get_stats"]), get_stats),
-                    MessageHandler(Filters.text(text["make_admin"]), make_admin)
+                    MessageHandler(Filters.text(text["make_admin"]), make_admin),
+                    MessageHandler(Filters.text(text["del_user"]), del_user),
                 ],
                 
                 States.ADMIN_CALL_CHOSEN: [
@@ -179,6 +182,11 @@ def main():
                     *necessary_handlers,
                     MessageHandler(Filters.text(text["back"]), admin),
                     MessageHandler(Filters.text, make_admin_save)
+                ],
+                States.DEL_USER: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, del_user_save)
                 ],
 
 

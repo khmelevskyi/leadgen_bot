@@ -38,3 +38,5 @@ class States(Enum):
     MAKE_ADMIN = 15
 
     MAKE_ADMIN_SAVE = 16
+
+    DEL_USER = 17

@@ -121,8 +121,8 @@ def call_yes(update: Update, context: CallbackContext):
         chat_id=chosen_call[3],
         text=text["call_yes_lead_thanks"],
     )
-    context.user_data.clear()
-    return States.ADMIN_MENU
+    context.user_data.pop("chosen_call")
+    return admin(update, context)
 
 
 def call_no(update: Update, context: CallbackContext):
@@ -159,5 +159,5 @@ def send_description(update: Update, context: CallbackContext):
         text=text["call_no_lead"] + msg + "\"",
         #reply_markup=ReplyKeyboardRemove()
     )
-    context.user_data.clear()
-    return States.ADMIN_MENU
+    context.user_data.pop("chosen_call")
+    return admin(update, context)

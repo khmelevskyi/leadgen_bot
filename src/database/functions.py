@@ -118,6 +118,17 @@ class DBSession():
         return new_user
 
     @local_session
+    def delete_user(self, session, chat_id):
+        old_user = session.query(User).get(chat_id)
+
+        session.query(Admin).filter(Admin.chat_id==old_user.chat_id).delete(synchronize_session=False)
+        session.query(UserStat).filter(UserStat.leadgen_id==old_user.chat_id).delete(synchronize_session=False)
+        session.query(Calls).filter(Calls.leadgen_id==old_user.chat_id).delete(synchronize_session=False)
+
+        session.delete(old_user)
+        session.commit()
+
+    @local_session
     def add_call(self, session, call_data: Dict) -> Calls:
         """
         Create user record if not exist, otherwise update username
