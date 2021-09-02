@@ -371,11 +371,16 @@ class DBSession():
         self.created_dict(df_res, "overall", df)
 
         today_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day]
-        # print(today_df)
         self.created_dict(df_res, "today", today_df)
 
         ystrdy_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day-1]
         self.created_dict(df_res, "ystrdy", ystrdy_df)
+
+        this_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == datetime.date.today().isocalendar()[1]]
+        self.created_dict(df_res, "this_week", this_week_df)
+
+        last_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == datetime.date.today().isocalendar()[1]-1]
+        self.created_dict(df_res, "last_week", last_week_df)
 
         this_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month]
         self.created_dict(df_res, "this_month", this_month_df)

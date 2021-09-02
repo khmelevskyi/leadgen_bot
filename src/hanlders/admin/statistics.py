@@ -68,6 +68,10 @@ def show_stats(update: Update, context: CallbackContext):
         f"\tСозвонов: {result['today']['calls']}\n\n"\
         f"Вчера:\n\tКоннектов: {result['ystrdy']['connects']}\n"\
         f"\tСозвонов: {result['ystrdy']['calls']}\n\n"\
+        f"Эта неделя:\n\tКоннектов: {result['this_week']['connects']}\n"\
+        f"\tСозвонов: {result['this_week']['calls']}\n\n"\
+        f"Прошлая неделя:\n\tКоннектов: {result['last_week']['connects']}\n"\
+        f"\tСозвонов: {result['last_week']['calls']}\n\n"\
         f"Этот месяц:\n\tКоннектов: {result['this_month']['connects']}\n"\
         f"\tСозвонов: {result['this_month']['calls']}\n\n"\
         f"Прошлый месяц:\n\tКоннектов: {result['last_month']['connects']}\n"\
@@ -89,6 +93,14 @@ def show_stats(update: Update, context: CallbackContext):
         f"Вчера:\n\tКоннектов: {result['ystrdy']['connects']}\n"\
         f"\tСозвонов: {result['ystrdy']['calls']}\n\tВ бане: {result['ystrdy']['is_ban']}\n"\
         f"\tРаботал: {result['ystrdy']['is_work']}\n\n"\
+        f"Эта неделя:\n\tКоннектов: {result['this_week']['connects']}\n"\
+        f"\tСозвонов: {result['this_week']['calls']}\n\tДней в бане: {result['this_week']['days_ban']}\n"\
+        f"\tДней не в бане: {result['this_week']['days_not_ban']}\n\tДней работал: {result['this_week']['days_work']}\n"\
+        f"\tДней не работал: {result['this_week']['days_not_work']}\n\n"\
+        f"Прошлая неделя:\n\tКоннектов: {result['last_week']['connects']}\n"\
+        f"\tСозвонов: {result['last_week']['calls']}\n\tДней в бане: {result['last_week']['days_ban']}\n"\
+        f"\tДней не в бане: {result['last_week']['days_not_ban']}\n\tДней работал: {result['last_week']['days_work']}\n"\
+        f"\tДней не работал: {result['last_week']['days_not_work']}\n\n"\
         f"Этот месяц:\n\tКоннектов: {result['this_month']['connects']}\n"\
         f"\tСозвонов: {result['this_month']['calls']}\n\tДней в бане: {result['this_month']['days_ban']}\n"\
         f"\tДней не в бане: {result['this_month']['days_not_ban']}\n\tДней работал: {result['this_month']['days_work']}\n"\
