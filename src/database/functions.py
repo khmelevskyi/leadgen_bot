@@ -41,7 +41,7 @@ class DBSession():
     """ db function with renewadle session for each func """
 
     def __init__(self):
-        self.admins = self.get_admins(["superadmin", "leadgen", "sales"])
+        self.admins = []
 
     @local_session
     def get_admins(self, session, role_list) -> None:
