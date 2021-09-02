@@ -152,8 +152,7 @@ def everyday_check_who_answered(*args):
                 reply_markup=ReplyKeyboardRemove(),
                 parse_mode=ParseMode.HTML
             )
-
-        
+     
 
 def echo_service(update: Update, context: CallbackContext):
     """ echo all msgs"""
