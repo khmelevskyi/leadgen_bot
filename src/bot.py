@@ -41,7 +41,15 @@ from .hanlders import pick_call
 from .hanlders import call_feedback
 from .hanlders import call_yes
 from .hanlders import call_no
-from .hanlders import send_description
+from .hanlders import send_call_description
+from .hanlders import pick_deal
+from .hanlders import deal_feedback
+from .hanlders import deal_yes
+from .hanlders import deal_yes_summ
+from .hanlders import deal_yes_percent
+from .hanlders import deal_yes_approve
+from .hanlders import deal_no
+from .hanlders import send_deal_description
 from .hanlders import get_stats
 from .hanlders import plan_call
 from .hanlders import plan_call_date
@@ -156,6 +164,7 @@ def main():
                     MessageHandler(Filters.text(text["make_admin"]), make_admin),
                     MessageHandler(Filters.text(text["del_user"]), del_user),
                     MessageHandler(Filters.text(text["push_mssg"]), push_mssg),
+                    MessageHandler(Filters.text(text["mssg_deal"]), pick_deal),
                 ],
                 
                 States.ADMIN_CALL_CHOSEN: [
@@ -165,12 +174,13 @@ def main():
                 
                 States.HAS_CALL_BEEN: [
                     *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
                     MessageHandler(Filters.text(text["yes"]), call_yes),
                     MessageHandler(Filters.text(text["no"]), call_no)],
                 
                 States.CALL_NO_DESCRIPTION: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, send_description)],
+                    MessageHandler(Filters.text, send_call_description)],
 
                 States.STATS_MENU: [
                     *necessary_handlers,
@@ -201,6 +211,34 @@ def main():
                     *necessary_handlers,
                     MessageHandler(Filters.text(text["cancel"]), admin),
                     MessageHandler(Filters.text, push_mssg_final)
+                ],
+                States.ADMIN_DEAL_CHOSEN: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, deal_feedback)
+                ], 
+                States.HAS_DEAL_BEEN: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text(text["yes"]), deal_yes),
+                    MessageHandler(Filters.text(text["no"]), deal_no),
+                ],
+                States.DEAL_NO_DESCRIPTION: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, send_deal_description)
+                ],
+                States.DEAL_YES_SUMM: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, deal_yes_summ)
+                ],
+                States.DEAL_YES_PERCENT: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, deal_yes_percent)
+                ],
+                States.DEAL_YES_APPROVE: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["cancel"]), admin),
+                    MessageHandler(Filters.text(text["yes"]), deal_yes_approve)
                 ],
 
 

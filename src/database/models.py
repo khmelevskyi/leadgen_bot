@@ -68,6 +68,8 @@ class UserStat(Base):
     leadgen_id = Column(Integer, ForeignKey("user.chat_id"))
     connects = Column(Integer)
     calls = Column(Integer)
+    deals = Column(Integer)
+    earned = Column(Integer)
     ban = Column(Boolean)
     work = Column(Boolean)
     added_at = Column(Date)
@@ -91,6 +93,20 @@ class Calls(Base):
     leadgen = relationship("User", backref="call_leadgen", foreign_keys=[leadgen_id])
 
     def __repr__(self):
-        return "<Group(id='{}', planned at='{}')>".format(
+        return "<Calls(id='{}', planned at='{}')>".format(
             self.id, self.planned_at
+        )
+
+class Deals(Base):
+    __tablename__ = "deals"
+
+    id = Column(Integer, primary_key=True)
+    linkedin = Column(String)
+    leadgen_id = Column(Integer, ForeignKey("user.chat_id"))
+
+    leadgen = relationship("User", backref="deal_leadgen", foreign_keys=[leadgen_id])
+
+    def __repr__(self):
+        return "<Deals(id='{}', leadgen_id='{}')>".format(
+            self.id, self.leadgen_id
         )

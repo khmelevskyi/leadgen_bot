@@ -12,7 +12,7 @@ from typing import List
 from typing import Set
 from typing import Tuple
 
-from .models import Admin, Calls, User, UserStat
+from .models import Admin, Calls, Deals, User, UserStat
 
 from .base import pg_session
 
@@ -124,6 +124,7 @@ class DBSession():
         session.query(Admin).filter(Admin.chat_id==old_user.chat_id).delete(synchronize_session=False)
         session.query(UserStat).filter(UserStat.leadgen_id==old_user.chat_id).delete(synchronize_session=False)
         session.query(Calls).filter(Calls.leadgen_id==old_user.chat_id).delete(synchronize_session=False)
+        session.query(Deals).filter(Deals.leadgen_id==old_user.chat_id).delete(synchronize_session=False)
 
         session.delete(old_user)
         session.commit()
@@ -167,7 +168,7 @@ class DBSession():
         return calls
 
     @local_session
-    def call_done(self, session, call):
+    def call_done(self, session, call, summ):
         old_call = session.query(Calls).get(call.id)
         leadgen_stat = session.query(UserStat).filter(
             UserStat.leadgen_id==call.leadgen_id,
@@ -175,20 +176,77 @@ class DBSession():
         ).first()
         if leadgen_stat:
             leadgen_stat.calls += 1
+            leadgen_stat.earned += summ
         else:
             self.create_user_stat(
                 call.leadgen_id,
                 datetime.date.today()
             )
-            return self.call_done(call)
+            return self.call_done(call, summ)
         session.delete(old_call)
         session.commit()
+        return self.add_deal(call)
 
     @local_session
     def delete_call(self, session, call):
         old_call = session.query(Calls).get(call.id)
         session.delete(old_call)
         session.commit()
+
+
+    @local_session
+    def add_deal(self, session, deal_data) -> Deals:
+        """
+        Create user record if not exist, otherwise update username
+        """
+        linkedin = deal_data.linkedin
+        leadgen_id = deal_data.leadgen_id
+
+        new_deal = Deals(
+            linkedin = linkedin,
+            leadgen_id = leadgen_id
+        )
+        session.add(new_deal)
+        session.commit()
+        return new_deal
+
+    @local_session
+    def get_deals_list(self, session) -> List:
+        """ list all users in database """
+
+        deals = session.query(
+            Deals.id,
+            Deals.linkedin,
+            Deals.leadgen_id
+        ).all()
+
+        return deals
+
+    @local_session
+    def deal_done(self, session, deal, summ):
+        old_deal = session.query(Deals).get(deal.id)
+        leadgen_stat = session.query(UserStat).filter(
+            UserStat.leadgen_id==deal.leadgen_id,
+            UserStat.added_at==datetime.date.today()
+        ).first()
+        if leadgen_stat:
+            leadgen_stat.deals += 1
+            leadgen_stat.earned += summ
+        else:
+            self.create_user_stat(
+                deal.leadgen_id,
+                datetime.date.today()
+            )
+            return self.deal_done(deal, summ)
+        session.delete(old_deal)
+        session.commit()
+
+    @local_session
+    def delete_deal(self, session, deal):
+        old_deal = session.query(Deals).get(deal.id)
+        session.delete(old_deal)
+        session.commit()
+
 
     @local_session
     def create_user_stat(self, session, user_id, date):
@@ -204,6 +262,8 @@ class DBSession():
                 leadgen_id = user_id,
                 connects = None,
                 calls = 0,
+                deals = 0,
+                earned = 0,
                 ban = None,
                 work = None,
                 added_at = date
@@ -233,6 +293,8 @@ class DBSession():
             leadgen_id = leadgen_id,
             connects = connects,
             calls = 0,
+            deals = 0,
+            earned = 0,
             ban = ban,
             work = work,
             added_at = added_at
@@ -247,6 +309,8 @@ class DBSession():
             UserStat.leadgen_id,
             UserStat.connects,
             UserStat.calls,
+            UserStat.deals,
+            UserStat.earned,
             UserStat.ban,
             UserStat.work,
             UserStat.added_at,
@@ -293,6 +357,13 @@ class DBSession():
         if user.is_banned is True:
             user.is_banned = False
             session.commit()
+
+
+    @local_session
+    def get_user(self, session, chat_id) -> Tuple[int, str, str]:
+        """ return universi_id and user date for engine.API call """
+        user = session.query(User).get(chat_id)
+        return user
 
 
     @local_session
@@ -395,8 +466,10 @@ class DBSession():
 
     def created_dict(self, df_res, date, df):
         dict_date = {}
-        dict_date["connects"] = df["connects"].sum()
-        dict_date["calls"] = df["calls"].sum()
+        dict_date["connects"] = int(df["connects"].sum())
+        dict_date["calls"] = int(df["calls"].sum())
+        dict_date["deals"] = int(df["deals"].sum())
+        dict_date["earned"] = int(df["earned"].sum())
         if date=="today" or date=="ystrdy":
             try:
                 dict_date["is_ban"] = df["ban"].values[0]
@@ -405,10 +478,10 @@ class DBSession():
                 dict_date["is_ban"] = None
                 dict_date["is_work"] = None
         else:
-            dict_date["days_ban"] = df[df["ban"] == True]["ban"].count()
-            dict_date["days_not_ban"] = df[df["ban"] == False]["ban"].count()
-            dict_date["days_work"] = df[df["work"] == True]["work"].count()
-            dict_date["days_not_work"] = df[df["work"] == False]["work"].count()
+            dict_date["days_ban"] = int(df[df["ban"] == True]["ban"].count())
+            dict_date["days_not_ban"] = int(df[df["ban"] == False]["ban"].count())
+            dict_date["days_work"] = int(df[df["work"] == True]["work"].count())
+            dict_date["days_not_work"] = int(df[df["work"] == False]["work"].count())
 
         df_res[date] = dict_date
 

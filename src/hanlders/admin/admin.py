@@ -22,9 +22,9 @@ def admin(update: Update, context: CallbackContext):
         return States.MAIN_MENU
 
     reply_markup = [
-        [text["mssg_call"], text["get_stats"]],
+        [text["mssg_call"], text["mssg_deal"]],
+        [text["push_mssg"], text["get_stats"]],
         [text["del_user"], text["make_admin"]],
-        [text["push_mssg"]],
         [text["back"]]]
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)

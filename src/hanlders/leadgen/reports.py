@@ -28,9 +28,9 @@ def report(update: Update, context: CallbackContext):
 
     user_stats = db_session.get_user_stat(chat_id, date_now)
     print(user_stats) 
-    ## user_stat[0][5] = work | True or False
+    ## user_stat[0][7] = work | True or False
     ## user_stat[0][3] = calls | 0, 1, ..
-    if user_stats and user_stats[0][5] == True: # checks if stat for this user and this date exists
+    if user_stats and user_stats[0][7] == True: # checks if stat for this user and this date exists
         reply_markup = [                      # and checks whether he worked today or not
             [text["yes"]],
             [text["no"]]
@@ -45,7 +45,7 @@ def report(update: Update, context: CallbackContext):
         )
         return States.CHANGE_CONNECTS_WANT
 
-    elif user_stats and user_stats[0][5] == False:
+    elif user_stats and user_stats[0][7] == False:
         context.bot.send_message(
             chat_id=chat_id,
             text=text["already_reported"],#"Вы уже вводили данные о своей работе сегодня,указав, что не работали сегодня!",

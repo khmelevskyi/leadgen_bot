@@ -44,3 +44,15 @@ class States(Enum):
     PUSH_MSSG = 18
 
     PUSH_MSSG_FINAL = 19
+
+    ADMIN_DEAL_CHOSEN = 20
+
+    HAS_DEAL_BEEN = 21
+
+    DEAL_NO_DESCRIPTION = 22
+
+    DEAL_YES_SUMM = 23
+
+    DEAL_YES_PERCENT = 24
+
+    DEAL_YES_APPROVE = 25

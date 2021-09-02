@@ -5,10 +5,15 @@ from sqlalchemy import pool
 
 from alembic import context
 
+# this is the Alembic Config object, which provides
+
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
-import database
+# target_metadata = mymodel.Base.metadata
+
+import src.database as database
 # target_metadata = mymodel.Base.metadata
 target_metadata = database.Base.metadata
 
@@ -21,7 +26,6 @@ config.set_main_option("sqlalchemy.url", db_uri)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
-
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
