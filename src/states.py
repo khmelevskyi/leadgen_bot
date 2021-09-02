@@ -40,3 +40,7 @@ class States(Enum):
     MAKE_ADMIN_SAVE = 16
 
     DEL_USER = 17
+
+    PUSH_MSSG = 18
+
+    PUSH_MSSG_FINAL = 19

@@ -23,6 +23,9 @@ from .hanlders import everyday_create_stat
 from .hanlders import everyday_check_who_answered
 from .hanlders import del_user
 from .hanlders import del_user_save
+from .hanlders import push_mssg
+from .hanlders import push_mssg_text
+from .hanlders import push_mssg_final
 from .hanlders import main_menu
 from .hanlders import make_admin
 from .hanlders import make_admin_role
@@ -152,6 +155,7 @@ def main():
                     MessageHandler(Filters.text(text["get_stats"]), get_stats),
                     MessageHandler(Filters.text(text["make_admin"]), make_admin),
                     MessageHandler(Filters.text(text["del_user"]), del_user),
+                    MessageHandler(Filters.text(text["push_mssg"]), push_mssg),
                 ],
                 
                 States.ADMIN_CALL_CHOSEN: [
@@ -187,6 +191,16 @@ def main():
                     *necessary_handlers,
                     MessageHandler(Filters.text(text["back"]), admin),
                     MessageHandler(Filters.text, del_user_save)
+                ],
+                States.PUSH_MSSG: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text, push_mssg_text)
+                ],
+                States.PUSH_MSSG_FINAL: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["cancel"]), admin),
+                    MessageHandler(Filters.text, push_mssg_final)
                 ],
 
 

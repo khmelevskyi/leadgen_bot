@@ -1,6 +1,7 @@
 import os
 import pytz
 import datetime
+from telegram import ParseMode
 from telegram import Update
 from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardRemove
@@ -126,7 +127,8 @@ def everyday_check_who_answered(*args):
     context = args[0]
 
     users_list = db_session.get_users_list_full()
-    users_didnt_answer = []
+    users_didnt_answer = "Эти ребята не зарепортили вчера:\n"
+    users_didnt_answer_n = 0
 
     date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date() - datetime.timedelta(days=1)
     for user in users_list:
@@ -134,18 +136,22 @@ def everyday_check_who_answered(*args):
         if is_answered == True:
             pass
         else:
-            users_didnt_answer.append(f"{user[3]} - @{user[2]}")
+            users_didnt_answer += f"{user[3]} - @{user[2]}\n"
+            users_didnt_answer_n += 1
 
-    if len(users_didnt_answer) == 0:
+    if users_didnt_answer_n == 0:
         pass
     else:
-        backslash_char = "\n"
-        sens_symbol = "'"
-        context.bot.send_message(
-            chat_id=os.getenv("ADMIN_CHAT_ID"),
-            text=f"Эти ребята не зарепортили вчера:\n{str(users_didnt_answer).replace('[', '').replace(']', '').replace(', ', backslash_char).replace(sens_symbol, '')}",
-            reply_markup=ReplyKeyboardRemove()
-        )
+        admins = db_session.get_admins(["superadmin", "leadgen"])
+        admins = [admin[0] for admin in admins]
+
+        for admin in admins:
+            context.bot.send_message(
+                chat_id=admin,
+                text=users_didnt_answer,
+                reply_markup=ReplyKeyboardRemove(),
+                parse_mode=ParseMode.HTML
+            )
 
         
 
