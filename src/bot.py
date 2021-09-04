@@ -56,6 +56,9 @@ from .hanlders import plan_call_date
 from .hanlders import plan_call_time
 from .hanlders import plan_call_link
 from .hanlders import show_stats
+from .hanlders import reminder
+from .hanlders import change_time
+from .hanlders import change_time_insert
 
 load_dotenv()
 
@@ -111,7 +114,8 @@ def main():
                             CommandHandler('stop', done),
                             CommandHandler('admin', admin),
                             CommandHandler('call', plan_call),
-                            CommandHandler('report', report)
+                            CommandHandler('report', report),
+                            CommandHandler('reminder', reminder)
                             ]
 
         conv_handler = ConversationHandler(
@@ -255,6 +259,17 @@ def main():
                 States.CALL_PLAN_LINK: [
                     *necessary_handlers,
                     MessageHandler(Filters.text, plan_call_link)],
+                
+
+                ##reminder
+                States.CHANGE_TIME_WANT: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text(text["change_time"]), change_time), 
+                    MessageHandler(Filters.text(text["back"]), main_menu)],
+                
+                States.CHANGE_TIME_INSERT: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text, change_time_insert)],
             },
 
             fallbacks=[CommandHandler('stop', done)], allow_reentry=True

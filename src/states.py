@@ -56,3 +56,7 @@ class States(Enum):
     DEAL_YES_PERCENT = 24
 
     DEAL_YES_APPROVE = 25
+
+    CHANGE_TIME_WANT = 26
+
+    CHANGE_TIME_INSERT = 27

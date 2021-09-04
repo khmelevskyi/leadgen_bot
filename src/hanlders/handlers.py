@@ -4,6 +4,7 @@ import datetime
 from telegram import ParseMode
 from telegram import Update
 from telegram.ext import CallbackContext
+from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
 from ..data import text
@@ -165,3 +166,60 @@ def echo_service(update: Update, context: CallbackContext):
             + "и времено не работает 🧑🏿‍💻\nСкоро вернемся 🕔"
         ),
     )
+
+
+## reminder
+def reminder(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+
+
+    ### ----- from DB -----
+    reminder_time = 22
+
+
+    reply_markup = [
+        [text["change_time"]],
+        [text["back"]]
+    ]
+    markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
+
+    context.bot.send_message(
+        chat_id = chat_id,
+        text = text["your_reminder_time_is"].format(reminder_time),
+        reply_markup = markup
+    )
+    return States.CHANGE_TIME_WANT
+
+
+def change_time(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+
+    context.bot.send_message(
+        chat_id = chat_id,
+        text = text["insert_new_time"]
+    )
+    return States.CHANGE_TIME_INSERT
+
+
+def change_time_insert(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    msg = update.message.text
+
+    try:
+        new_time = int(msg)
+    except:
+        context.bot.send_message(
+            chat_id = chat_id,
+            text = text["reminder_invalid_time"]
+        )
+        return States.CHANGE_TIME_INSERT
+    
+
+    ### ----- save new_time to DB -----
+
+
+    context.bot.send_message(
+        chat_id = chat_id,
+        text = text["new_time_set"]
+    )
+    return main_menu(update, context)

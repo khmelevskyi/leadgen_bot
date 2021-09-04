@@ -19,7 +19,7 @@ def pick_deal(update: Update, context: CallbackContext):
     reply_markup = []
     
     for deal in deals:
-        deal = f"{deal[0]}) - {deal[2]}"
+        deal = f"{deal[0]}) - {deal[1]}"
         reply_markup.append([deal])
     
     if reply_markup == []:
