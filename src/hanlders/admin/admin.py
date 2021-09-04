@@ -51,11 +51,17 @@ def make_admin(update: Update, context: CallbackContext):
         return States.MAIN_MENU
 
     users_list = db_session.get_users_admins_name()
+    admins_list = db_session.get_admins(["superadmin", "leadgen", "sales"])
+    admins_list = [admin[0] for admin in admins_list]
 
     reply_markup = []
 
     for user in users_list:
-        user = f"{user[0]}) - {user[1]} {user[2]}"
+        if user[0] in admins_list:
+            admin_role = db_session.get_admin(user[0]).role
+            user = f"{user[0]}) - {user[1]} {user[2]} - {admin_role}"
+        else:
+            user = f"{user[0]}) - {user[1]} {user[2]}"
         reply_markup.append([user])
 
     reply_markup.append([text["back"]])
@@ -64,7 +70,7 @@ def make_admin(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=chat_id,
-        text="Выберите пользователя:",
+        text=text["choose_admin"],
         reply_markup=markup,
     )
     return States.MAKE_ADMIN
@@ -76,7 +82,6 @@ def make_admin_role(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
 
     admins = db_session.get_admins(["superadmin"])
-    # n_admins = len(admins)
     admins = [admin[0] for admin in admins]
 
     #Check
@@ -91,7 +96,8 @@ def make_admin_role(update: Update, context: CallbackContext):
     reply_markup = [
         ["superadmin"],
         ["leadgen"],
-        ["sales"]
+        ["sales"],
+        [text["remove"]]
     ]
 
     reply_markup.append([text["back"]])
@@ -100,15 +106,13 @@ def make_admin_role(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=chat_id,
-        text="Выберите роль админа",
+        text=text["choose_admin_role"],
         reply_markup=markup,
     )
 
     return States.MAKE_ADMIN_SAVE
 
-def make_admin_save(update: Update, context: CallbackContext):
-
-    msg = update.message.text
+def make_admin_remove(update: Update, context: CallbackContext):
 
     chat_id = update.message.chat.id
 
@@ -123,14 +127,59 @@ def make_admin_save(update: Update, context: CallbackContext):
 
     new_admin_chat_id = context.user_data["new_admin_chat_id"]
 
+    admins_list = db_session.get_admins(["superadmin", "leadgen", "sales"])
+    admins_list = [admin[0] for admin in admins_list]
+    print(admins_list)
+
+    if int(new_admin_chat_id) not in admins_list:
+        context.bot.send_message(
+            chat_id=chat_id,
+            text="Данный пользователь не является админом ❗\nПопробуйте выбрать пользователю роль:",
+        )
+        return States.MAKE_ADMIN_SAVE
+    else:
+        db_session.remove_admin(new_admin_chat_id)
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=text["make_admin_removed"],
+        )
+        context.user_data.pop("new_admin_chat_id")
+        return admin(update, context)
+    
+
+def make_admin_save(update: Update, context: CallbackContext):
+
+    msg = update.message.text
+
+    chat_id = update.message.chat.id
+
+    admins = db_session.get_admins(["superadmin"])
+    admins = [admin[0] for admin in admins]
+
+    #Check
+    if chat_id not in admins: #***list of admin users' chat_ids from DB***
+        context.bot.send_message(chat_id=chat_id, text=text["not_an_admin"])
+        return States.MAIN_MENU
+
+    new_admin_chat_id = context.user_data["new_admin_chat_id"]
+
     db_session.make_admin(new_admin_chat_id, msg)
 
     context.user_data.pop("new_admin_chat_id")
 
-    context.bot.send_message(
-        chat_id=chat_id,
-        text="Пользователь успешно добавлен в админы!",
-    )
+    admins_list = db_session.get_admins(["superadmin", "leadgen", "sales"])
+    admins_list = [admin[0] for admin in admins_list]
+
+    if int(new_admin_chat_id) in admins_list:
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=text["make_admin_changed"],
+        )
+    else:
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=text["make_admin_added"],
+        )
 
     return admin(update, context)
 

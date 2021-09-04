@@ -44,6 +44,11 @@ class DBSession():
         self.admins = []
 
     @local_session
+    def get_admin(self, session, chat_id) -> None:
+        admin = session.query(Admin).get(chat_id)
+        return admin
+
+    @local_session
     def get_admins(self, session, role_list) -> None:
         admins = (
             session.query(Admin.chat_id)
@@ -80,7 +85,15 @@ class DBSession():
         session.add(new_admin)
         session.commit()
 
-        return new_admin    
+        return new_admin
+    
+    @local_session
+    def remove_admin(self, session, chat_id):
+        old_admin = session.query(Admin).get(chat_id)
+        session.delete(old_admin)
+        old_admin = session.query(User).get(chat_id)
+        old_admin.is_admin = False
+        session.commit()
 
     @local_session
     def add_user(self, session, user_data: Dict) -> User:

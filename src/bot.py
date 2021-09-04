@@ -30,6 +30,7 @@ from .hanlders import main_menu
 from .hanlders import make_admin
 from .hanlders import make_admin_role
 from .hanlders import make_admin_save
+from .hanlders import make_admin_remove
 from .hanlders import name
 from .hanlders import report
 from .hanlders import report_options
@@ -199,6 +200,7 @@ def main():
                 States.MAKE_ADMIN_SAVE: [
                     *necessary_handlers,
                     MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text(text["remove"]), make_admin_remove),
                     MessageHandler(Filters.text, make_admin_save)
                 ],
                 States.DEL_USER: [
