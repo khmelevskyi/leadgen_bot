@@ -1,4 +1,3 @@
-import os
 import pytz
 import datetime
 from telegram import ParseMode

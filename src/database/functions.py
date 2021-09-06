@@ -1,7 +1,7 @@
 """ session genation """
 import pandas as pd
 from functools import wraps
-from os import link
+import pytz
 
 from .base import Session
 
@@ -453,26 +453,33 @@ class DBSession():
 
         # print(df_res)
         self.created_dict(df_res, "overall", df)
-
-        today_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day]
+        
+        today_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date().day
+        today_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == today_date]
         self.created_dict(df_res, "today", today_df)
 
-        ystrdy_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day-1]
+        ystrdy_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date().day - 1
+        ystrdy_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == ystrdy_date]
         self.created_dict(df_res, "ystrdy", ystrdy_df)
-
-        this_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == datetime.date.today().isocalendar()[1]]
+        
+        this_week_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).isocalendar()[1]
+        this_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == this_week_date]
         self.created_dict(df_res, "this_week", this_week_df)
 
-        last_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == datetime.date.today().isocalendar()[1]-1]
+        last_week_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).isocalendar()[1] - 1
+        last_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == last_week_date]
         self.created_dict(df_res, "last_week", last_week_df)
 
-        this_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month]
+        this_month_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date().month
+        this_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == this_month_date]
         self.created_dict(df_res, "this_month", this_month_df)
 
-        last_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month-1]
+        last_month_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date().month - 1
+        last_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == last_month_date]
         self.created_dict(df_res, "last_month", last_month_df)
 
-        year_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.year == datetime.date.today().year]
+        year_date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date().year
+        year_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.year == year_date]
         self.created_dict(df_res, "year", year_df)
 
         return df_res
