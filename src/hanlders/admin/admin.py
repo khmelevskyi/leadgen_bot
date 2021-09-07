@@ -21,11 +21,29 @@ def admin(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text=text["not_an_admin"])
         return States.MAIN_MENU
 
-    reply_markup = [
-        [text["mssg_call"], text["mssg_deal"]],
-        [text["push_mssg"], text["get_stats"]],
-        [text["del_user"], text["make_admin"]],
-        [text["back"]]]
+    admin_role = db_session.get_admin(chat_id).role
+    if admin_role == "superadmin":
+        reply_markup = [
+            [text["mssg_call"], text["mssg_deal"]],  # ["superadmin", "leadgen", "sales"] X2
+            [text["push_mssg"], text["get_stats"]],  # ["superadmin"]; ["superadmin", "leadgen"]
+            [text["del_user"], text["make_admin"]],  # ["superadmin"] X2
+            [text["back"]]
+        ]
+    elif admin_role == "leadgen":
+        reply_markup = [
+            [text["mssg_call"], text["mssg_deal"]],
+            [text["get_stats"]],
+            [text["back"]]
+        ]
+    elif admin_role == "sales":
+        reply_markup = [
+            [text["mssg_call"], text["mssg_deal"]],
+            [text["back"]]
+        ]
+    else:
+        reply_markup = [
+            [text["back"]]
+        ]
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
 
@@ -295,7 +313,7 @@ def push_mssg_text(update: Update, context: CallbackContext):
 
     reply_markup = []
 
-    reply_markup.append([text["back"]])
+    reply_markup.append([text["cancel"]])
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
 

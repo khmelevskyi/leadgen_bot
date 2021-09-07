@@ -1,5 +1,4 @@
 import datetime
-import pytz
 from telegram import Update
 from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardMarkup
@@ -58,6 +57,7 @@ def report(update: Update, context: CallbackContext):
         [text["no_w_b"]],
         [text["w_b"]],
         [text["w_no_b"]],
+        [text["back"]],
     ]
 
     markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)

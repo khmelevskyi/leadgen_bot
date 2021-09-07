@@ -1,15 +1,16 @@
 from sqlalchemy import Column, ForeignKey, MetaData
-from sqlalchemy import BigInteger, Integer, String, Boolean, DateTime, Date
+from sqlalchemy import BigInteger, Integer, String, Boolean, DateTime, Date, Time
 from sqlalchemy.dialects.postgresql import JSONB
-
 
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-from datetime import datetime, time, timedelta
+import datetime
 from typing import Any
 import pytz
 from enum import Enum
+
+from ..data import TIME_ZONE
 
 meta = MetaData(  # automatically name constraints to simplify migrations
     naming_convention={
@@ -24,25 +25,26 @@ meta = MetaData(  # automatically name constraints to simplify migrations
 Base: Any = declarative_base(metadata=meta)
 
 
-def local_time() -> datetime:
+def local_time() -> datetime.datetime:
     """ time in Ukraine """
     kiev_tz = pytz.timezone("Europe/Kiev")
-    current_time = datetime.now(tz=kiev_tz)
+    current_time = datetime.datetime.now(tz=kiev_tz)
     return current_time
 
 class User(Base):
     __tablename__ = "user"
 
     chat_id = Column(BigInteger, primary_key=True)
-    is_banned = Column(Boolean, default=False)
+    is_banned = Column(Boolean, default=False, nullable=False)
     username = Column(String(35))  # Telegram allows username no longer then 32
     first_name = Column(String)  # first name is unlimited
     last_name = Column(String)
     time_registered = Column(DateTime(timezone=True), default=local_time)
-    is_admin = Column(Boolean, default=False)
+    is_admin = Column(Boolean, default=False, nullable=False)
+    reminder_time = Column(Time, default=datetime.time(hour=21, tzinfo=TIME_ZONE))
 
     def __repr__(self):
-        return "<User(chat_id='{}', username='{}', is_banned='{}', university='{}')>".format(
+        return "<User(chat_id='{}', username='{}', is_banned='{}')>".format(
             self.chat_id, self.username, self.is_banned
         )
 

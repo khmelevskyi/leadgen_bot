@@ -1,10 +1,8 @@
 from telegram import ParseMode
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext
-import pandas as pd
 
 from ...database import db_session
-from ...database import Calls
 from ...states import States
 from ...data import text
 

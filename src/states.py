@@ -60,3 +60,5 @@ class States(Enum):
     CHANGE_TIME_WANT = 26
 
     CHANGE_TIME_INSERT = 27
+
+    REMOVE_REMINDER = 28

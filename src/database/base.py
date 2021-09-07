@@ -4,10 +4,8 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from os import path, getenv
-import sys
+from os import getenv
 
-from sqlalchemy import select
 from colorama import Fore
 from colorama import init
 

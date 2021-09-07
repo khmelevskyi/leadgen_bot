@@ -1,4 +1,3 @@
-import pytz
 import datetime
 from telegram import ParseMode
 from telegram import Update
@@ -6,7 +5,7 @@ from telegram.ext import CallbackContext
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
-from ..data import text
+from ..data import text, TIME_ZONE
 from ..states import States
 from ..database import db_session
 
@@ -75,7 +74,7 @@ def name(update: Update, context: CallbackContext):
     last_name = name[1]
     username = update.effective_chat.username
     chat_id = update.effective_chat.id
-    time_registered = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev"))
+    time_registered = datetime.datetime.now(tz=TIME_ZONE)
 
     context.user_data["first_name"] = first_name
     context.user_data["last_name"] = last_name
@@ -106,10 +105,14 @@ def main_menu(update: Update, context: CallbackContext):
 def everyday_ask_work(*args):
     context = args[0]
 
-    users = db_session.get_users_list()
+    hour_now = datetime.datetime.now(tz=TIME_ZONE).hour
+    reminder_time_now = datetime.time(hour=hour_now, tzinfo=TIME_ZONE)
+
+    users = db_session.get_users_list_obj(reminder_time=reminder_time_now)
+    
 
     for user in users:
-        chat_id = user[0]
+        chat_id = user.chat_id
         context.bot.send_message(chat_id=chat_id, text=text["everyday_notification"], reply_markup=ReplyKeyboardRemove() )
 
 
@@ -117,7 +120,7 @@ def everyday_create_stat(*args):
     users_list = db_session.get_users_list()
     users_list = [user[0] for user in users_list]
 
-    date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date()
+    date = datetime.datetime.now(tz=TIME_ZONE).date()
 
     for user in users_list:
         db_session.create_user_stat(user, date)
@@ -130,7 +133,7 @@ def everyday_check_who_answered(*args):
     users_didnt_answer = "Эти ребята не зарепортили вчера:\n"
     users_didnt_answer_n = 0
 
-    date = datetime.datetime.now(tz=pytz.timezone("Europe/Kiev")).date() - datetime.timedelta(days=1)
+    date = datetime.datetime.now(tz=TIME_ZONE).date() - datetime.timedelta(days=1)
     for user in users_list:
         is_answered = db_session.check_who_answered(user[0], date)
         if is_answered == True:
@@ -165,60 +168,3 @@ def echo_service(update: Update, context: CallbackContext):
             + "и времено не работает 🧑🏿‍💻\nСкоро вернемся 🕔"
         ),
     )
-
-
-## reminder
-def reminder(update: Update, context: CallbackContext):
-    chat_id = update.message.chat.id
-
-
-    ### ----- from DB -----
-    reminder_time = 22
-
-
-    reply_markup = [
-        [text["change_time"]],
-        [text["back"]]
-    ]
-    markup = ReplyKeyboardMarkup(keyboard=reply_markup, resize_keyboard=True)
-
-    context.bot.send_message(
-        chat_id = chat_id,
-        text = text["your_reminder_time_is"].format(reminder_time),
-        reply_markup = markup
-    )
-    return States.CHANGE_TIME_WANT
-
-
-def change_time(update: Update, context: CallbackContext):
-    chat_id = update.message.chat.id
-
-    context.bot.send_message(
-        chat_id = chat_id,
-        text = text["insert_new_time"]
-    )
-    return States.CHANGE_TIME_INSERT
-
-
-def change_time_insert(update: Update, context: CallbackContext):
-    chat_id = update.message.chat.id
-    msg = update.message.text
-
-    try:
-        new_time = int(msg)
-    except:
-        context.bot.send_message(
-            chat_id = chat_id,
-            text = text["reminder_invalid_time"]
-        )
-        return States.CHANGE_TIME_INSERT
-    
-
-    ### ----- save new_time to DB -----
-
-
-    context.bot.send_message(
-        chat_id = chat_id,
-        text = text["new_time_set"]
-    )
-    return main_menu(update, context)

@@ -2,6 +2,8 @@
 import os
 import sys
 from datetime import time as datetime_time
+from datetime import timedelta
+from datetime import datetime
 import logging
 
 from dotenv import load_dotenv
@@ -60,6 +62,8 @@ from .hanlders import show_stats
 from .hanlders import reminder
 from .hanlders import change_time
 from .hanlders import change_time_insert
+from .hanlders import remove_reminder
+from .hanlders import remove_reminder_approve
 
 load_dotenv()
 
@@ -99,14 +103,15 @@ def main():
 
         j = updater.job_queue
 
-        callback_time = datetime_time(hour=21, minute=00, tzinfo=TIME_ZONE)
-        j.run_daily(callback=everyday_ask_work, time=callback_time)
-
         callback_time = datetime_time(hour=0, minute=4, tzinfo=TIME_ZONE)
         j.run_daily(callback=everyday_create_stat, time=callback_time)
 
         callback_time = datetime_time(hour=0, minute=2, tzinfo=TIME_ZONE)
         j.run_daily(callback=everyday_check_who_answered, time=callback_time)
+
+        callback_time = timedelta(hours=1)
+        closest_hour = datetime.now().hour + 1
+        j.run_repeating(callback=everyday_ask_work, interval=callback_time, first=datetime.now(tz=TIME_ZONE).replace(hour=closest_hour, minute=0, second=2))
 
         # massage handlers
         # ================
@@ -129,105 +134,104 @@ def main():
                 States.PASSWORD_CHECK: [
                     CommandHandler('start', start),
                     CommandHandler('stop', done),
-                    MessageHandler(Filters.text, password_check)],
-
+                    MessageHandler(Filters.text, password_check)
+                ],
                 States.MAIN_MENU: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, main_menu)],
-                
+                    MessageHandler(Filters.text, main_menu)
+                ],
 
                 ## leadgen's reports
                 States.NAME_AND_SURNAME: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, name)],
-                
+                    MessageHandler(Filters.text, name)
+                ],
                 States.REPORT: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, report_options)],
-
+                    MessageHandler(Filters.text([text["back"]]), main_menu),
+                    MessageHandler(Filters.text, report_options)
+                ],
                 States.CONNECTS: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, connects)],
-
+                    MessageHandler(Filters.text, connects)
+                ],
                 States.CHANGE_CONNECTS_WANT: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["yes"]), change_connects_want),
-                    MessageHandler(Filters.text(text["no"]), main_menu)
+                    MessageHandler(Filters.text([text["yes"]]), change_connects_want),
+                    MessageHandler(Filters.text([text["no"]]), main_menu)
                 ],
-
                 States.CHANGE_CONNECTS: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, change_connects)],
-
+                    MessageHandler(Filters.text, change_connects)
+                ],
 
                 ## admin
                 States.ADMIN_MENU: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), main_menu),
-                    MessageHandler(Filters.text(text["mssg_call"]), pick_call),
-                    MessageHandler(Filters.text(text["get_stats"]), get_stats),
-                    MessageHandler(Filters.text(text["make_admin"]), make_admin),
-                    MessageHandler(Filters.text(text["del_user"]), del_user),
-                    MessageHandler(Filters.text(text["push_mssg"]), push_mssg),
-                    MessageHandler(Filters.text(text["mssg_deal"]), pick_deal),
+                    MessageHandler(Filters.text([text["back"]]), main_menu),
+                    MessageHandler(Filters.text([text["mssg_call"]]), pick_call),
+                    MessageHandler(Filters.text([text["get_stats"]]), get_stats),
+                    MessageHandler(Filters.text([text["make_admin"]]), make_admin),
+                    MessageHandler(Filters.text([text["del_user"]]), del_user),
+                    MessageHandler(Filters.text([text["push_mssg"]]), push_mssg),
+                    MessageHandler(Filters.text([text["mssg_deal"]]), pick_deal),
                 ],
-                
                 States.ADMIN_CALL_CHOSEN: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
-                    MessageHandler(Filters.text, call_feedback)],
-                
+                    MessageHandler(Filters.text([text["back"]]), admin),
+                    MessageHandler(Filters.text, call_feedback)
+                ],
                 States.HAS_CALL_BEEN: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
-                    MessageHandler(Filters.text(text["yes"]), call_yes),
-                    MessageHandler(Filters.text(text["no"]), call_no)],
-                
+                    MessageHandler(Filters.text([text["back"]]), admin),
+                    MessageHandler(Filters.text([text["yes"]]), call_yes),
+                    MessageHandler(Filters.text([text["no"]]), call_no)
+                ],
                 States.CALL_NO_DESCRIPTION: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, send_call_description)],
-
+                    MessageHandler(Filters.text, send_call_description)
+                ],
                 States.STATS_MENU: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text([text["back"]]), admin),
                     MessageHandler(Filters.text, show_stats)
                 ],
                 States.MAKE_ADMIN: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text([text["back"]]), admin),
                     MessageHandler(Filters.text, make_admin_role)
                 ],
                 States.MAKE_ADMIN_SAVE: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
-                    MessageHandler(Filters.text(text["remove"]), make_admin_remove),
+                    MessageHandler(Filters.text([text["back"]]), admin),
+                    MessageHandler(Filters.text([text["remove"]]), make_admin_remove),
                     MessageHandler(Filters.text, make_admin_save)
                 ],
                 States.DEL_USER: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text([text["back"]]), admin),
                     MessageHandler(Filters.text, del_user_save)
                 ],
                 States.PUSH_MSSG: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text([text["back"]]), admin),
                     MessageHandler(Filters.text, push_mssg_text)
                 ],
                 States.PUSH_MSSG_FINAL: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["cancel"]), admin),
+                    MessageHandler(Filters.text([text["cancel"]]), admin),
                     MessageHandler(Filters.text, push_mssg_final)
                 ],
                 States.ADMIN_DEAL_CHOSEN: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
+                    MessageHandler(Filters.text([text["back"]]), admin),
                     MessageHandler(Filters.text, deal_feedback)
                 ], 
                 States.HAS_DEAL_BEEN: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), admin),
-                    MessageHandler(Filters.text(text["yes"]), deal_yes),
-                    MessageHandler(Filters.text(text["no"]), deal_no),
+                    MessageHandler(Filters.text([text["back"]]), admin),
+                    MessageHandler(Filters.text([text["yes"]]), deal_yes),
+                    MessageHandler(Filters.text([text["no"]]), deal_no),
                 ],
                 States.DEAL_NO_DESCRIPTION: [
                     *necessary_handlers,
@@ -243,35 +247,47 @@ def main():
                 ],
                 States.DEAL_YES_APPROVE: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["cancel"]), admin),
-                    MessageHandler(Filters.text(text["yes"]), deal_yes_approve)
+                    MessageHandler(Filters.text([text["cancel"]]), admin),
+                    MessageHandler(Filters.text([text["yes"]]), deal_yes_approve)
                 ],
 
 
                 ## leadgen calls
                 States.CALL_PLAN_DATE: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["back"]), main_menu),
-                    MessageHandler(Filters.text, plan_call_date)],
+                    MessageHandler(Filters.text([text["back"]]), main_menu),
+                    MessageHandler(Filters.text, plan_call_date)
+                ],
                 
                 States.CALL_PLAN_TIME: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, plan_call_time)],
+                    MessageHandler(Filters.text, plan_call_time)
+                ],
                 
                 States.CALL_PLAN_LINK: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, plan_call_link)],
+                    MessageHandler(Filters.text, plan_call_link)
+                ],
                 
 
                 ##reminder
                 States.CHANGE_TIME_WANT: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text(text["change_time"]), change_time), 
-                    MessageHandler(Filters.text(text["back"]), main_menu)],
+                    MessageHandler(Filters.text([text["change_time"]]), change_time),
+                    MessageHandler(Filters.text([text["remove_reminder"]]), remove_reminder),
+                    MessageHandler(Filters.text([text["back"]]), main_menu)
+                ],
                 
                 States.CHANGE_TIME_INSERT: [
                     *necessary_handlers,
-                    MessageHandler(Filters.text, change_time_insert)],
+                    MessageHandler(Filters.text([text["cancel"]]), reminder),
+                    MessageHandler(Filters.text, change_time_insert)
+                ],
+                States.REMOVE_REMINDER: [
+                    *necessary_handlers,
+                    MessageHandler(Filters.text([text["cancel"]]), reminder),
+                    MessageHandler(Filters.text([text["yes"]]), remove_reminder_approve)
+                ],
             },
 
             fallbacks=[CommandHandler('stop', done)], allow_reentry=True
