@@ -1,10 +1,8 @@
 from telegram import ParseMode
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext
-import pandas as pd
 
 from ...database import db_session
-from ...database import Calls
 from ...states import States
 from ...data import text
 
@@ -110,59 +108,59 @@ def show_stats(update: Update, context: CallbackContext):
 
         formatted_text = f"Статистика:\n"\
         f"Лидген: {msg}\n\n"\
-        f"Сегодня:\n\tКоннектов: {result['today']['connects']}\n"\
-        f"\tСозвонов: {result['today']['calls']}\n"\
-        f"\tСделок: {result['today']['deals']}\n"\
-        f"\tЗаработал(а): {result['today']['earned']}\n"\
-        f"\tВ бане: {result['today']['is_ban']}\n"\
-        f"\tРаботал: {result['today']['is_work']}\n\n"\
+        f"Сегодня:\n\tКоннектов: <b>{result['today']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['today']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['today']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['today']['earned']}</b>\n"\
+        f"\tВ бане: <b>{result['today']['is_ban']}</b>\n"\
+        f"\tРаботал: <b>{result['today']['is_work']}</b>\n\n"\
         \
-        f"Вчера:\n\tКоннектов: {result['ystrdy']['connects']}\n"\
-        f"\tСозвонов: {result['ystrdy']['calls']}\n"\
-        f"\tСделок: {result['ystrdy']['deals']}\n"\
-        f"\tЗаработал(а): {result['ystrdy']['earned']}\n"\
-        f"\tВ бане: {result['ystrdy']['is_ban']}\n"\
-        f"\tРаботал: {result['ystrdy']['is_work']}\n\n"\
+        f"Вчера:\n\tКоннектов: <b>{result['ystrdy']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['ystrdy']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['ystrdy']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['ystrdy']['earned']}</b>\n"\
+        f"\tВ бане: <b>{result['ystrdy']['is_ban']}</b>\n"\
+        f"\tРаботал: <b>{result['ystrdy']['is_work']}</b>\n\n"\
         \
-        f"Эта неделя:\n\tКоннектов: {result['this_week']['connects']}\n"\
-        f"\tСозвонов: {result['this_week']['calls']}\n"\
-        f"\tСделок: {result['this_week']['deals']}\n"\
-        f"\tЗаработал(а): {result['this_week']['earned']}\n"\
-        f"\tДней в бане: {result['this_week']['days_ban']}\n"\
-        f"\tДней не в бане: {result['this_week']['days_not_ban']}\n\tДней работал: {result['this_week']['days_work']}\n"\
-        f"\tДней не работал: {result['this_week']['days_not_work']}\n\n"\
+        f"Эта неделя:\n\tКоннектов: <b>{result['this_week']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['this_week']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['this_week']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['this_week']['earned']}</b>\n"\
+        f"\tДней в бане: <b>{result['this_week']['days_ban']}</b>\n"\
+        f"\tДней не в бане: <b>{result['this_week']['days_not_ban']}</b>\n\tДней работал: <b>{result['this_week']['days_work']}</b>\n"\
+        f"\tДней не работал: <b>{result['this_week']['days_not_work']}</b>\n\n"\
         \
-        f"Прошлая неделя:\n\tКоннектов: {result['last_week']['connects']}\n"\
-        f"\tСозвонов: {result['last_week']['calls']}\n"\
-        f"\tСделок: {result['last_week']['deals']}\n"\
-        f"\tЗаработал(а): {result['last_week']['earned']}\n"\
-        f"\tДней в бане: {result['last_week']['days_ban']}\n"\
-        f"\tДней не в бане: {result['last_week']['days_not_ban']}\n\tДней работал: {result['last_week']['days_work']}\n"\
-        f"\tДней не работал: {result['last_week']['days_not_work']}\n\n"\
+        f"Прошлая неделя:\n\tКоннектов: <b>{result['last_week']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['last_week']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['last_week']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['last_week']['earned']}</b>\n"\
+        f"\tДней в бане: <b>{result['last_week']['days_ban']}</b>\n"\
+        f"\tДней не в бане: <b>{result['last_week']['days_not_ban']}</b>\n\tДней работал: <b>{result['last_week']['days_work']}</b>\n"\
+        f"\tДней не работал: <b>{result['last_week']['days_not_work']}</b>\n\n"\
         \
-        f"Этот месяц:\n\tКоннектов: {result['this_month']['connects']}\n"\
-        f"\tСозвонов: {result['this_month']['calls']}\n"\
-        f"\tСделок: {result['this_month']['deals']}\n"\
-        f"\tЗаработал(а): {result['this_month']['earned']}\n"\
-        f"\tДней в бане: {result['this_month']['days_ban']}\n"\
-        f"\tДней не в бане: {result['this_month']['days_not_ban']}\n\tДней работал: {result['this_month']['days_work']}\n"\
-        f"\tДней не работал: {result['this_month']['days_not_work']}\n\n"\
+        f"Этот месяц:\n\tКоннектов: <b>{result['this_month']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['this_month']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['this_month']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['this_month']['earned']}</b>\n"\
+        f"\tДней в бане: <b>{result['this_month']['days_ban']}</b>\n"\
+        f"\tДней не в бане: <b>{result['this_month']['days_not_ban']}</b>\n\tДней работал: <b>{result['this_month']['days_work']}</b>\n"\
+        f"\tДней не работал: <b>{result['this_month']['days_not_work']}</b>\n\n"\
         \
-        f"Прошлый месяц:\n\tКоннектов: {result['last_month']['connects']}\n"\
-        f"\tСозвонов: {result['last_month']['calls']}\n"\
-        f"\tСделок: {result['last_month']['deals']}\n"\
-        f"\tЗаработал(а): {result['last_month']['earned']}\n"\
-        f"\tДней в бане: {result['last_month']['days_ban']}\n"\
-        f"\tДней не в бане: {result['last_month']['days_not_ban']}\n\tДней работал: {result['last_month']['days_work']}\n"\
-        f"\tДней не работал: {result['last_month']['days_not_work']}\n\n"\
+        f"Прошлый месяц:\n\tКоннектов: <b>{result['last_month']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['last_month']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['last_month']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['last_month']['earned']}</b>\n"\
+        f"\tДней в бане: <b>{result['last_month']['days_ban']}</b>\n"\
+        f"\tДней не в бане: <b>{result['last_month']['days_not_ban']}</b>\n\tДней работал: <b>{result['last_month']['days_work']}</b>\n"\
+        f"\tДней не работал: <b>{result['last_month']['days_not_work']}</b>\n\n"\
         \
-        f"За все время:\n\tКоннектов: {result['overall']['connects']}\n"\
-        f"\tСозвонов: {result['overall']['calls']}\n"\
-        f"\tСделок: {result['overall']['deals']}\n"\
-        f"\tЗаработал(а): {result['overall']['earned']}\n"\
-        f"\tДней в бане: {result['overall']['days_ban']}\n"\
-        f"\tДней не в бане: {result['overall']['days_not_ban']}\n\tДней работал: {result['overall']['days_work']}\n"\
-        f"\tДней не работал: {result['overall']['days_not_work']}\n\n"
+        f"За все время:\n\tКоннектов: <b>{result['overall']['connects']}</b>\n"\
+        f"\tСозвонов: <b>{result['overall']['calls']}</b>\n"\
+        f"\tСделок: <b>{result['overall']['deals']}</b>\n"\
+        f"\tЗаработал(а): <b>{result['overall']['earned']}</b>\n"\
+        f"\tДней в бане: <b>{result['overall']['days_ban']}</b>\n"\
+        f"\tДней не в бане: <b>{result['overall']['days_not_ban']}</b>\n\tДней работал: <b>{result['overall']['days_work']}</b>\n"\
+        f"\tДней не работал: <b>{result['overall']['days_not_work']}</b>\n\n"
         # f"Год:\n\tКоннектов: {result['year']['connects']}\n"\
         # f"\tСозвонов: {result['year']['calls']}\n"\
         # f"\tСделок: {result['year']['deals']}\n"\

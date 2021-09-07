@@ -1,7 +1,6 @@
 """ session genation """
 import pandas as pd
 from functools import wraps
-from os import link
 
 from .base import Session
 
@@ -13,8 +12,7 @@ from typing import Set
 from typing import Tuple
 
 from .models import Admin, Calls, Deals, User, UserStat
-
-from .base import pg_session
+from ..data import TIME_ZONE
 
 
 def local_session(function):
@@ -42,6 +40,11 @@ class DBSession():
 
     def __init__(self):
         self.admins = []
+
+    @local_session
+    def get_admin(self, session, chat_id) -> None:
+        admin = session.query(Admin).get(chat_id)
+        return admin
 
     @local_session
     def get_admins(self, session, role_list) -> None:
@@ -80,7 +83,15 @@ class DBSession():
         session.add(new_admin)
         session.commit()
 
-        return new_admin    
+        return new_admin
+    
+    @local_session
+    def remove_admin(self, session, chat_id):
+        old_admin = session.query(Admin).get(chat_id)
+        session.delete(old_admin)
+        old_admin = session.query(User).get(chat_id)
+        old_admin.is_admin = False
+        session.commit()
 
     @local_session
     def add_user(self, session, user_data: Dict) -> User:
@@ -93,6 +104,7 @@ class DBSession():
         last_name = user_data["last_name"]
         time_registered = user_data["time_registered"]
         is_admin = False
+        reminder_time = datetime.time(hour=21, tzinfo=TIME_ZONE)
 
         user = session.query(User).get(chat_id)
         if user:
@@ -111,7 +123,8 @@ class DBSession():
             first_name=first_name,
             last_name = last_name,
             time_registered = time_registered,
-            is_admin = is_admin
+            is_admin = is_admin,
+            reminder_time = reminder_time,
         )
         session.add(new_user)
         session.commit()
@@ -414,19 +427,43 @@ class DBSession():
         return users
 
     @local_session
+    def get_users_list_obj(self, session, reminder_time=None):
+        """ list all users in database """
+        if reminder_time == None:
+            users = session.query(
+                User
+                ).filter(User.is_admin==False).all()
+        else:
+            users = session.query(
+                User
+                ).filter(
+                    User.is_admin==False,
+                    User.reminder_time==reminder_time
+                ).all()
+
+        return users
+
+    @local_session
     def get_users_admins_list(self, session):
         """ list all users in database """
 
         users = session.query(User.chat_id).all()
         return users
 
+
     @local_session
-    def delete_from_group(self, session, chat_id: int) -> None:
-        """ deleting from group table """
-        group = session.query(User).get(chat_id)
-        if group:
-            session.delete(group)
-            session.commit()
+    def add_reminder_time(self, session, chat_id, reminder_time) -> None:
+        user = session.query(User).get(chat_id)
+
+        user.reminder_time = reminder_time
+        session.commit()
+
+    @local_session
+    def remove_reminder_time(self, session, chat_id) -> None:
+        user = session.query(User).get(chat_id)
+
+        user.reminder_time = None
+        session.commit()
 
 
     @local_session
@@ -440,26 +477,33 @@ class DBSession():
 
         # print(df_res)
         self.created_dict(df_res, "overall", df)
-
-        today_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day]
+        
+        today_date = datetime.datetime.now(tz=TIME_ZONE).date().day
+        today_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == today_date]
         self.created_dict(df_res, "today", today_df)
 
-        ystrdy_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == datetime.date.today().day-1]
+        ystrdy_date = datetime.datetime.now(tz=TIME_ZONE).date().day - 1
+        ystrdy_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.day == ystrdy_date]
         self.created_dict(df_res, "ystrdy", ystrdy_df)
-
-        this_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == datetime.date.today().isocalendar()[1]]
+        
+        this_week_date = datetime.datetime.now(tz=TIME_ZONE).isocalendar()[1]
+        this_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == this_week_date]
         self.created_dict(df_res, "this_week", this_week_df)
 
-        last_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == datetime.date.today().isocalendar()[1]-1]
+        last_week_date = datetime.datetime.now(tz=TIME_ZONE).isocalendar()[1] - 1
+        last_week_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.isocalendar().week == last_week_date]
         self.created_dict(df_res, "last_week", last_week_df)
 
-        this_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month]
+        this_month_date = datetime.datetime.now(tz=TIME_ZONE).date().month
+        this_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == this_month_date]
         self.created_dict(df_res, "this_month", this_month_df)
 
-        last_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == datetime.date.today().month-1]
+        last_month_date = datetime.datetime.now(tz=TIME_ZONE).date().month - 1
+        last_month_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.month == last_month_date]
         self.created_dict(df_res, "last_month", last_month_df)
 
-        year_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.year == datetime.date.today().year]
+        year_date = datetime.datetime.now(tz=TIME_ZONE).date().year
+        year_df = df[pd.to_datetime(df['added_at'], errors = 'coerce', format = '%Y-%m-%d').dt.year == year_date]
         self.created_dict(df_res, "year", year_df)
 
         return df_res
